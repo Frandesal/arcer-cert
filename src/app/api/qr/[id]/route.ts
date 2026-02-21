@@ -33,7 +33,7 @@ export async function GET(
     type: "png",
   });
 
-  return new NextResponse(pngBuffer, {
+  return new NextResponse(new Uint8Array(pngBuffer), {
     headers: {
       "Content-Type": "image/png",
       "Content-Disposition": `attachment; filename="arcer-certificate-${id}.png"`,
