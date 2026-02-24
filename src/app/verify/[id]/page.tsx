@@ -11,7 +11,7 @@ export default async function VerifyPage({ params }: Props) {
   const supabase = await createClient();
   const { data: student, error } = await supabase
     .from("students")
-    .select("id, full_name, date_graduated")
+    .select("id, first_name, middle_name, last_name, date_graduated")
     .eq("id", id)
     .single();
 
@@ -19,10 +19,20 @@ export default async function VerifyPage({ params }: Props) {
     notFound();
   }
 
+  const fullName = [student.first_name, student.middle_name, student.last_name]
+    .filter(Boolean)
+    .join(" ");
+
+  const verifyStudent = {
+    id: student.id,
+    full_name: fullName,
+    date_graduated: student.date_graduated,
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-emerald-50/30 to-teal-50/20 p-4">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(34,197,94,0.12),transparent)]" />
-      <VerifyCard student={student} />
+      <VerifyCard student={verifyStudent} />
     </div>
   );
 }
