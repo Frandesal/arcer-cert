@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { FileUp, Loader2, CheckCircle2 } from "lucide-react";
+import { FileUp, Loader2, CheckCircle2, Download } from "lucide-react";
 import Papa from "papaparse";
 import { BaseCertificate } from "./base-certificate";
 import { toPng } from "html-to-image";
@@ -188,27 +188,52 @@ export function CsvImportModal() {
              )}
 
              {!isProcessing ? (
-               <div 
-                   onClick={() => fileInputRef.current?.click()}
-                   className="mt-2 flex justify-center rounded-lg border border-dashed border-slate-300 px-6 py-12 hover:bg-slate-50 hover:border-primary/50 cursor-pointer transition-colors"
-               >
-                 <div className="text-center">
-                   <FileUp className="mx-auto h-12 w-12 text-slate-300" aria-hidden="true" />
-                   <div className="mt-4 flex text-sm leading-6 text-slate-600 justify-center">
-                     <span className="relative cursor-pointer rounded-md font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 hover:text-emerald-500">
-                       Upload a file
-                     </span>
-                     <p className="pl-1">or drag and drop</p>
-                   </div>
-                   <p className="text-xs leading-5 text-slate-500">CSV file containing graduate data</p>
+               <div className="space-y-4">
+                 <div className="flex justify-end relative z-10">
+                   <Button 
+                      variant="link" 
+                      onClick={() => {
+                        const csvContent = "data:text/csv;charset=utf-8," + 
+                          "first_name,middle_name,last_name,date_graduated,modules_completed\n" +
+                          'John,D,Doe,2024-05-20,"[{""title"":""React JS"",""count"":5},{""title"":""Next JS"",""count"":3}]"\n' +
+                          'Jane,,Smith,2024-05-20,"[{""title"":""Python Basics"",""count"":10}]"\n';
+                        
+                        const encodedUri = encodeURI(csvContent);
+                        const link = document.createElement("a");
+                        link.setAttribute("href", encodedUri);
+                        link.setAttribute("download", "Arcer_CSV_Template.csv");
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      className="text-primary h-auto py-1 px-2 text-xs"
+                    >
+                     <Download className="w-3.5 h-3.5 mr-1" /> Download Example Template
+                   </Button>
                  </div>
-                 <input
-                     ref={fileInputRef}
-                     type="file"
-                     accept=".csv"
-                     className="hidden"
-                     onChange={handleFileUpload}
-                 />
+                 
+                 <div 
+                     onClick={() => fileInputRef.current?.click()}
+                     className="flex justify-center rounded-lg border border-dashed border-slate-300 px-6 py-12 hover:bg-slate-50 hover:border-primary/50 cursor-pointer transition-colors"
+                 >
+                   <div className="text-center">
+                     <FileUp className="mx-auto h-12 w-12 text-slate-300" aria-hidden="true" />
+                     <div className="mt-4 flex text-sm leading-6 text-slate-600 justify-center">
+                       <span className="relative cursor-pointer rounded-md font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 hover:text-emerald-500">
+                         Upload a file
+                       </span>
+                       <p className="pl-1">or drag and drop</p>
+                     </div>
+                     <p className="text-xs leading-5 text-slate-500">CSV file containing graduate data</p>
+                   </div>
+                   <input
+                       ref={fileInputRef}
+                       type="file"
+                       accept=".csv"
+                       className="hidden"
+                       onChange={handleFileUpload}
+                   />
+                 </div>
                </div>
              ) : (
                 <div className="flex flex-col items-center justify-center py-8 space-y-4">
