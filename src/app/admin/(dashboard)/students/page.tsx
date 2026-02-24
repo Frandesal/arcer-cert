@@ -4,7 +4,7 @@ import { isAdmin } from "@/lib/admin";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users } from "lucide-react";
+import { Users, Plus } from "lucide-react";
 
 import { DeleteStudentDialog } from "@/components/delete-student-dialog";
 import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
@@ -27,13 +27,21 @@ export default async function AdminDashboardPage() {
       <main className="flex-1">
         <div className="bg-gradient-to-b from-primary/5 to-transparent py-8">
           <div className="container mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                Admin Dashboard
-              </h1>
-              <p className="mt-2 text-slate-600">
-                Manage graduates and generate certificate QR codes.
-              </p>
+            <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                  Graduates Directory
+                </h1>
+                <p className="mt-2 text-slate-600">
+                  Manage graduates and generate certificate QR codes.
+                </p>
+              </div>
+              <Link href="/admin/students/new">
+                <Button className="gap-2 font-medium shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all hover:scale-105">
+                  <Plus className="h-5 w-5" />
+                  Add Graduate
+                </Button>
+              </Link>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
