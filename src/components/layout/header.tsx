@@ -29,7 +29,15 @@ export function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-2 md:flex">
+          <Link href="/bulletin">
+            <Button
+              variant="ghost"
+              className="font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+            >
+              Bulletin Board
+            </Button>
+          </Link>
           <Link href="/students">
             <Button
               variant="ghost"
