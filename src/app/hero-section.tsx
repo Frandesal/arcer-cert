@@ -20,9 +20,9 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
             className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-6xl"
           >
-            Certificate{" "}
+            Arcer{" "}
             <span className="text-primary">
-              Verification
+              Registry & Portal
             </span>
           </motion.h1>
           <motion.p
@@ -31,8 +31,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mt-6 text-lg leading-relaxed text-slate-600 sm:text-xl"
           >
-            Verify that graduates have successfully completed our programs. Each
-            certificate includes a unique QR code for instant verification.
+            Welcome to the official Arcer platform. Browse the latest announcements below, or verify a graduate via the public registry.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -46,7 +45,7 @@ export function HeroSection() {
                 className="h-12 gap-2 px-6 font-medium shadow-none bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-[1.02]"
               >
                 <Users className="h-5 w-5" />
-                Browse Graduates
+                Search Registry
               </Button>
             </Link>
             <Link href="/admin">

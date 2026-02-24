@@ -22,7 +22,7 @@ export default async function AdminLoginPage() {
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-emerald-700 text-white shadow-md">
           <GraduationCap className="h-5 w-5" />
         </div>
-        Arcer Certificates
+        Arcer Registry
       </Link>
 
       <Card className="relative w-full max-w-md border-slate-200/80 bg-white shadow-xl">

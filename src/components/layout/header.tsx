@@ -7,7 +7,8 @@ import { GraduationCap, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { href: "/students", label: "View Graduates" },
+  { href: "/#announcements", label: "Bulletin Board" },
+  { href: "/students", label: "Search Registry" },
   { href: "/admin", label: "Admin" },
 ];
 
@@ -24,13 +25,13 @@ export function Header() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-emerald-700 text-white shadow-md">
             <GraduationCap className="h-5 w-5" />
           </div>
-          <span className="hidden sm:inline">Arcer Certificates</span>
+          <span className="hidden sm:inline">Arcer Registry</span>
           <span className="sm:hidden">Arcer</span>
         </Link>
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-2 md:flex">
-          <Link href="/bulletin">
+          <Link href="/#announcements">
             <Button
               variant="ghost"
               className="font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900"
@@ -43,7 +44,7 @@ export function Header() {
               variant="ghost"
               className="font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900"
             >
-              View Graduates
+              Search Registry
             </Button>
           </Link>
           <Link href="/admin">

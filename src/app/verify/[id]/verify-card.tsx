@@ -54,7 +54,7 @@ export function VerifyCard({ student }: { student: Student }) {
           </div>
           <div className="flex items-center justify-center gap-2 pt-4 text-sm text-slate-500">
             <GraduationCap className="h-4 w-4" />
-            <span>Registered with Arcer Certificate Verification</span>
+            <span>Registered with Arcer Registry & Portal</span>
           </div>
         </CardContent>
       </Card>
