@@ -8,6 +8,7 @@ import { Users, Plus } from "lucide-react";
 
 import { DeleteStudentDialog } from "@/components/delete-student-dialog";
 import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
+import { CsvImportModal } from "@/components/csv-import-modal";
 
 export default async function AdminDashboardPage() {
   const admin = await isAdmin();
@@ -36,12 +37,15 @@ export default async function AdminDashboardPage() {
                   Manage graduates and generate certificate QR codes.
                 </p>
               </div>
-              <Link href="/admin/students/new">
-                <Button className="gap-2 font-medium shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all hover:scale-105">
-                  <Plus className="h-5 w-5" />
-                  Add Graduate
-                </Button>
-              </Link>
+              <div className="flex items-center gap-3">
+                <CsvImportModal />
+                <Link href="/admin/students/new">
+                  <Button className="gap-2 font-medium shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all hover:scale-105">
+                    <Plus className="h-5 w-5" />
+                    Add Graduate
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
