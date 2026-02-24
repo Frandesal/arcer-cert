@@ -1,12 +1,19 @@
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { Menu } from "lucide-react";
+import { redirect } from "next/navigation";
+import { isAdmin } from "@/lib/admin";
 
 // Server Layout that isolates all internal admin pages to enforce the sidebar
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const admin = await isAdmin();
+  if (!admin) {
+    redirect("/admin/login");
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50/50">
       {/* Desktop Sidebar */}
