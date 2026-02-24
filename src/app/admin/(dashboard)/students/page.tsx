@@ -5,8 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
-import { AdminHeader } from "@/components/layout/admin-header";
-import { Footer } from "@/components/layout/footer";
+
 import { DeleteStudentDialog } from "@/components/delete-student-dialog";
 import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
 
@@ -23,8 +22,7 @@ export default async function AdminDashboardPage() {
     .order("date_graduated", { ascending: false });
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <AdminHeader />
+    <div className="flex flex-col">
 
       <main className="flex-1">
         <div className="bg-gradient-to-b from-primary/5 to-transparent py-8">
@@ -113,7 +111,6 @@ export default async function AdminDashboardPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

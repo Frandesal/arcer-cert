@@ -4,8 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
 import { EditStudentForm } from "./edit-student-form";
 import { ArrowLeft } from "lucide-react";
-import { AdminHeader } from "@/components/layout/admin-header";
-import { Footer } from "@/components/layout/footer";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -28,8 +26,7 @@ export default async function EditStudentPage({ params }: Props) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <AdminHeader />
+    <div className="flex flex-col">
 
       <main className="flex-1">
         <div className="bg-gradient-to-b from-primary/5 to-transparent py-8">
@@ -47,7 +44,6 @@ export default async function EditStudentPage({ params }: Props) {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

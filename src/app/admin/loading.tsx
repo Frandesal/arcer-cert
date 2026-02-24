@@ -1,11 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { AdminHeader } from "@/components/layout/admin-header";
-import { Footer } from "@/components/layout/footer";
+
 
 export default function AdminLoading() {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <AdminHeader />
+    <div className="flex flex-col">
       
       <main className="flex-1">
         <div className="bg-gradient-to-b from-primary/5 to-transparent py-8">
@@ -25,7 +23,6 @@ export default function AdminLoading() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

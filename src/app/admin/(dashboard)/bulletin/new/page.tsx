@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/admin";
-import { AdminHeader } from "@/components/layout/admin-header";
-import { Footer } from "@/components/layout/footer";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BulletinForm } from "./bulletin-form";
@@ -13,8 +11,7 @@ export default async function NewBulletinPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <AdminHeader />
+    <div className="flex flex-col">
 
       <main className="flex-1 py-8">
         <div className="container mx-auto max-w-4xl px-4 sm:px-6">
@@ -39,7 +36,6 @@ export default async function NewBulletinPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }
