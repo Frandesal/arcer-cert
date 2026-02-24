@@ -21,7 +21,7 @@ export function HeroSection() {
             className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-6xl"
           >
             Certificate{" "}
-            <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
+            <span className="text-primary">
               Verification
             </span>
           </motion.h1>
@@ -43,7 +43,7 @@ export function HeroSection() {
             <Link href="/students">
               <Button
                 size="lg"
-                className="h-12 gap-2 px-6 font-medium shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30"
+                className="h-12 gap-2 px-6 font-medium shadow-none bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-[1.02]"
               >
                 <Users className="h-5 w-5" />
                 Browse Graduates

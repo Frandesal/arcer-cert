@@ -7,10 +7,16 @@ import { StudentsSearch } from "./students-search";
 
 export default async function StudentsPage() {
   const supabase = await createClient();
-  const { data: students, error } = await supabase
+  const { data: studentsRaw, error } = await supabase
     .from("students")
-    .select("id, full_name, date_graduated")
+    .select("id, first_name, middle_name, last_name, date_graduated")
     .order("date_graduated", { ascending: false });
+
+  const students = (studentsRaw || []).map(s => ({
+    id: s.id,
+    full_name: [s.first_name, s.middle_name, s.last_name].filter(Boolean).join(" "),
+    date_graduated: s.date_graduated
+  }));
 
   const isSetupError =
     error?.code === "PGRST205" ||

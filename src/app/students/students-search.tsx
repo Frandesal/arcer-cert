@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, GraduationCap } from "lucide-react";
 
 type StudentRow = {
   id: string;

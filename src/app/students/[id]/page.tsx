@@ -6,6 +6,8 @@ import { ArrowLeft, Calendar, BookOpen, Award, ShieldCheck, CheckCircle2 } from 
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { QRCodeDisplay } from "@/components/qr-code-display";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Maximize2 } from "lucide-react";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -32,6 +34,10 @@ export default async function StudentProfilePage({ params }: Props) {
       day: "numeric",
     });
   };
+
+  const fullName = [student.first_name, student.middle_name, student.last_name]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
@@ -64,7 +70,7 @@ export default async function StudentProfilePage({ params }: Props) {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl">
-                    {student.full_name}
+                    {fullName}
                   </h1>
                   <p className="text-primary-foreground/80 font-medium tracking-wide text-sm uppercase flex items-center gap-1.5 mt-1">
                     <ShieldCheck className="w-4 h-4" /> Official Graduate
@@ -98,12 +104,26 @@ export default async function StudentProfilePage({ params }: Props) {
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-4">
                     <BookOpen className="h-5 w-5 text-primary" /> Modules Completed
                   </h3>
-                  <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
-                    <ul className="grid gap-3 sm:grid-cols-2">
-                      {(student.modules_completed || []).map((m: string, i: number) => (
-                        <li key={i} className="flex items-start gap-2.5">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary/70" />
-                          <span className="text-sm font-medium text-slate-700">{m}</span>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-6 md:p-8">
+                    <ul className="flex flex-wrap gap-4">
+                      {(student.modules_completed || []).map((m: { title: string, count: number }, i: number) => (
+                        <li key={i} className="relative flex min-w-[200px] flex-1 items-center overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm transition-all hover:shadow-md sm:min-w-[240px]">
+                          <div className="flex flex-1 items-center gap-3 p-4 pr-0">
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/5">
+                              <CheckCircle2 className="h-4 w-4 text-primary" />
+                            </div>
+                            <span className="font-semibold text-slate-800 leading-tight pr-2">
+                              {m.title}
+                            </span>
+                          </div>
+                          
+                          <div className="relative flex h-full min-w-[80px] flex-col items-center justify-center bg-primary/10 px-4 py-3 text-primary ml-auto">
+                            <div className="absolute -left-6 top-0 h-full w-12 -skew-x-12 bg-primary/10" />
+                            <span className="relative z-10 text-lg font-bold leading-none">{m.count}</span>
+                            <span className="relative z-10 text-[10px] font-semibold uppercase tracking-wider mt-0.5">
+                              {m.count === 1 ? 'Module' : 'Modules'}
+                            </span>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -112,17 +132,36 @@ export default async function StudentProfilePage({ params }: Props) {
               </div>
 
               {/* QR Code Sidebar */}
-              <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 md:justify-start pt-8 pb-8 transition-colors hover:border-primary/30">
-                <div className="relative mb-6 group">
-                  <div className="absolute -inset-1 rounded-2xl bg-gradient-to-b from-primary/30 to-primary/0 opacity-0 blur backdrop-blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
-                  <div className="relative rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-900/5">
-                    <QRCodeDisplay url={verifyUrl} size={160} />
-                  </div>
-                </div>
+              <div className="flex flex-col items-center justify-start self-start rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 pt-10 pb-8 transition-colors hover:border-primary/30">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="relative mb-8 group outline-none cursor-zoom-in">
+                      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-b from-primary/30 to-primary/0 opacity-0 blur backdrop-blur-3xl transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" />
+                      <div className="relative rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-900/5 transition-transform duration-300 group-hover:scale-[1.02]">
+                         <QRCodeDisplay url={verifyUrl} size={180} />
+                         <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-primary/5 opacity-0 backdrop-blur-[1px] transition-opacity duration-300 group-hover:opacity-100">
+                           <div className="flex items-center gap-2 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white shadow-lg">
+                             <Maximize2 className="h-3.5 w-3.5" /> Enlarge
+                           </div>
+                         </div>
+                      </div>
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md flex flex-col items-center justify-center p-12">
+                     <p className="font-semibold text-slate-900 mb-6 text-xl">Official Certificate QR</p>
+                     <div className="rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-900/5">
+                       <QRCodeDisplay url={verifyUrl} size={320} />
+                     </div>
+                     <p className="text-sm text-slate-500 mt-8 text-center balance leading-relaxed">
+                       Scan this code with any smartphone camera to verify the authenticity of this certificate on the Arcer registry.
+                     </p>
+                  </DialogContent>
+                </Dialog>
+                
                 <div className="text-center space-y-2">
-                  <p className="font-semibold text-slate-900 text-sm">Official Certificate</p>
-                  <p className="text-xs text-slate-500 leading-relaxed balance">
-                    Scan to verify authenticity of this graduate's credentials.
+                  <p className="font-semibold text-slate-900 text-[15px]">Official Certificate</p>
+                  <p className="text-[13px] text-slate-500 leading-relaxed balance max-w-[200px] mx-auto">
+                    Scan to verify authenticity of this graduate&apos;s credentials.
                   </p>
                 </div>
               </div>

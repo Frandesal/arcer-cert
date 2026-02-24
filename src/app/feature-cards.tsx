@@ -39,7 +39,7 @@ export function FeatureCards() {
           >
             <Card className="group h-full border-slate-200/80 bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-card-hover">
               <CardHeader className="space-y-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-emerald-100 text-primary transition-transform group-hover:scale-110">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <CardTitle className="text-base font-semibold text-slate-900">

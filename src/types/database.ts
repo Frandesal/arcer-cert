@@ -1,9 +1,11 @@
 export type Student = {
   id: string;
-  full_name: string;
+  first_name: string;
+  middle_name: string | null;
+  last_name: string;
   date_entered: string;
   date_graduated: string;
-  modules_completed: string[];
+  modules_completed: { title: string; count: number }[];
   created_at: string;
   updated_at: string;
 };

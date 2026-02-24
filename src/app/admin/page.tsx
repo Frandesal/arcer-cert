@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { AdminHeader } from "@/components/layout/admin-header";
 import { Footer } from "@/components/layout/footer";
+import { DeleteStudentDialog } from "@/components/delete-student-dialog";
+import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
 
 export default async function AdminDashboardPage() {
   const admin = await isAdmin();
@@ -17,7 +19,7 @@ export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const { data: students } = await supabase
     .from("students")
-    .select("id, full_name, date_graduated")
+    .select("id, first_name, middle_name, last_name, date_entered, date_graduated, modules_completed")
     .order("date_graduated", { ascending: false });
 
   return (
@@ -63,24 +65,41 @@ export default async function AdminDashboardPage() {
                 Recent Graduates
               </h2>
               <div className="space-y-3">
-                {(students ?? []).slice(0, 10).map((s) => (
-                  <Link key={s.id} href={`/admin/students/${s.id}/edit`}>
-                    <Card className="border-slate-200/80 bg-white shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card-hover">
+                {(students ?? []).slice(0, 10).map((s) => {
+                  const fullName = [s.first_name, s.middle_name, s.last_name]
+                    .filter(Boolean)
+                    .join(" ");
+                  return (
+                    <Card key={s.id} className="border-slate-200/80 bg-white shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card-hover group">
                       <CardHeader className="flex flex-row items-center justify-between py-4">
                         <div>
-                          <p className="font-medium text-slate-900">{s.full_name}</p>
+                          <p className="font-medium text-slate-900 group-hover:text-primary transition-colors">{fullName}</p>
                           <p className="text-sm text-slate-600">
                             Graduated:{" "}
                             {new Date(s.date_graduated).toLocaleDateString()}
                           </p>
                         </div>
-                        <Button variant="ghost" size="sm">
-                          Edit
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <AdminStudentViewModal
+                            student={{
+                              id: s.id,
+                              fullName,
+                              date_entered: s.date_entered,
+                              date_graduated: s.date_graduated,
+                              modules_completed: s.modules_completed as { title: string; count: number }[],
+                            }}
+                          />
+                          <Button variant="outline" size="sm" asChild>
+                            <Link href={`/admin/students/${s.id}/edit`}>
+                              Edit
+                            </Link>
+                          </Button>
+                          <DeleteStudentDialog studentId={s.id} studentName={fullName} />
+                        </div>
                       </CardHeader>
                     </Card>
-                  </Link>
-                ))}
+                  );
+                })}
               </div>
               {(!students || students.length === 0) && (
                 <Card className="border-slate-200/80 bg-white shadow-card">
