@@ -2,7 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, GraduationCap } from "lucide-react";
+import { CheckCircle2, GraduationCap, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 type Student = {
   id: string;
@@ -58,6 +60,16 @@ export function VerifyCard({ student }: { student: Student }) {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Return Flow Link */}
+      <div className="mt-8 text-center">
+         <Link href={`/students?year=${new Date(student.date_graduated).getFullYear()}&month=${new Date(student.date_graduated).getMonth()}`}>
+             <Button variant="outline" className="gap-2 bg-white/50 backdrop-blur hover:bg-white text-slate-700 hover:text-primary border-slate-200 shadow-sm rounded-full px-6 transition-all duration-300 hover:scale-105">
+                 View the full Class of {new Date(student.date_graduated).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                 <ArrowRight className="w-4 h-4" />
+             </Button>
+         </Link>
+      </div>
     </motion.div>
   );
 }

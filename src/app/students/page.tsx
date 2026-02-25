@@ -4,6 +4,7 @@ import { GraduationCap } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { StudentsSearch } from "./students-search";
+import { Suspense } from "react";
 
 export default async function StudentsPage() {
   const supabase = await createClient();
@@ -63,7 +64,9 @@ export default async function StudentsPage() {
           </Card>
         ) : (
           <>
-            <StudentsSearch initialStudents={students ?? []} />
+            <Suspense fallback={<div className="py-12 flex justify-center text-slate-400 animate-pulse">Loading directory...</div>}>
+              <StudentsSearch initialStudents={students ?? []} />
+            </Suspense>
 
             {(!students || students.length === 0) && (
               <Card className="border-slate-200/80 bg-white shadow-card">
