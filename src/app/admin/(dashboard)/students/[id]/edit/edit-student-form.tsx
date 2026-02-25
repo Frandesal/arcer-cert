@@ -12,17 +12,23 @@ import { Download, QrCode, Plus, Trash2, Loader2 } from "lucide-react";
 import type { Student } from "@/types/database";
 
 type Props = { student: Student };
-type ModuleInput = { title: string; count: number };
+type ModuleInput = { title: string; count: number | "" };
 
 export function EditStudentForm({ student }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  // Default to at least one empty module if none exist
-  const initialModules = student.modules_completed && student.modules_completed.length > 0 
-    ? student.modules_completed 
-    : [{ title: "", count: 1 }];
+  // Default to prefilled modules if none exist
+  const initialModules: ModuleInput[] = student.modules_completed && student.modules_completed.length > 0 
+    ? (student.modules_completed as unknown as ModuleInput[])
+    : [
+        { title: "MS Word", count: "" },
+        { title: "MS Excel", count: "" },
+        { title: "MS PowerPoint", count: "" },
+        { title: "Adobe Photoshop", count: "" },
+        { title: "Canva", count: "" }
+      ];
 
   const [modules, setModules] = useState<ModuleInput[]>(initialModules);
   const router = useRouter();
@@ -34,7 +40,7 @@ export function EditStudentForm({ student }: Props) {
   const verifyUrl = `${baseUrl}/verify/${student.id}`;
 
   const handleAddModule = () => {
-    setModules([...modules, { title: "", count: 1 }]);
+    setModules([...modules, { title: "", count: "" }]);
   };
 
   const handleRemoveModule = (index: number) => {
@@ -64,7 +70,12 @@ export function EditStudentForm({ student }: Props) {
     const date_graduated = formData.get("date_graduated") as string;
     
     // Filter out any empty modules
-    const modules_completed = modules.filter(m => m.title.trim() !== "");
+    const modules_completed = modules
+      .filter(m => m.title.trim() !== "")
+      .map(m => ({
+        title: m.title.trim(),
+        count: m.count === "" ? 1 : m.count
+      }));
 
     const supabase = createClient();
     const { error: updateError } = await supabase
@@ -201,7 +212,10 @@ export function EditStudentForm({ student }: Props) {
                         min="1"
                         placeholder="10"
                         value={module.count}
-                        onChange={(e) => handleModuleChange(index, "count", parseInt(e.target.value) || 1)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleModuleChange(index, "count", val === "" ? "" : parseInt(val));
+                        }}
                         required
                       />
                     </div>

@@ -12,7 +12,7 @@ import { QRCodeDisplay } from "@/components/qr-code-display";
 
 type ModuleInput = {
   title: string;
-  count: number;
+  count: number | "";
 };
 
 export function AddStudentForm() {
@@ -21,7 +21,11 @@ export function AddStudentForm() {
   
   // Dynamic Module State
   const [modules, setModules] = useState<ModuleInput[]>([
-    { title: "", count: 1 }
+    { title: "MS Word", count: "" },
+    { title: "MS Excel", count: "" },
+    { title: "MS PowerPoint", count: "" },
+    { title: "Adobe Photoshop", count: "" },
+    { title: "Canva", count: "" }
   ]);
 
   const [createdStudent, setCreatedStudent] = useState<{
@@ -34,7 +38,7 @@ export function AddStudentForm() {
   const router = useRouter();
 
   const handleAddModule = () => {
-    setModules([...modules, { title: "", count: 1 }]);
+    setModules([...modules, { title: "", count: "" }]);
   };
 
   const handleRemoveModule = (index: number) => {
@@ -63,7 +67,12 @@ export function AddStudentForm() {
     const date_graduated = formData.get("date_graduated") as string;
     
     // Filter out any empty modules
-    const modules_completed = modules.filter(m => m.title.trim() !== "");
+    const modules_completed = modules
+      .filter(m => m.title.trim() !== "")
+      .map(m => ({
+        title: m.title.trim(),
+        count: m.count === "" ? 1 : m.count
+      }));
 
     const supabase = createClient();
     const { data, error: insertError } = await supabase
@@ -132,7 +141,13 @@ export function AddStudentForm() {
               variant="outline"
               onClick={() => {
                 setCreatedStudent(null);
-                setModules([{ title: "", count: 1 }]);
+                setModules([
+                  { title: "MS Word", count: "" },
+                  { title: "MS Excel", count: "" },
+                  { title: "MS PowerPoint", count: "" },
+                  { title: "Adobe Photoshop", count: "" },
+                  { title: "Canva", count: "" }
+                ]);
               }}
             >
               Add another student
@@ -221,7 +236,10 @@ export function AddStudentForm() {
                       min="1"
                       placeholder="10"
                       value={module.count}
-                      onChange={(e) => handleModuleChange(index, "count", parseInt(e.target.value) || 1)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        handleModuleChange(index, "count", val === "" ? "" : parseInt(val));
+                      }}
                       required
                     />
                   </div>
