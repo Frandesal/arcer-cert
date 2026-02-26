@@ -11,33 +11,61 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { FileUp, Loader2, CheckCircle2, Download } from "lucide-react";
+import { FileUp, Loader2, Download } from "lucide-react";
 import Papa from "papaparse";
 import { BaseCertificate } from "./base-certificate";
-import { toPng } from "html-to-image";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
+import { useCertificateGenerator } from "@/hooks/useCertificateGenerator";
 
+// The new simplified CSV format — one column per module, no JSON needed
 interface CsvRow {
   first_name: string;
   middle_name?: string;
   last_name: string;
   date_graduated?: string;
-  modules_completed: string; // We expect JSON string in the CSV e.g., [{"title":"React","count":1}]
+  // Individual module count columns (the number for each module, or blank)
+  ms_word?: string;
+  ms_excel?: string;
+  ms_powerpoint?: string;
+  adobe_photoshop?: string;
+  canva?: string;
 }
+
+// Maps CSV column names to their display titles on the certificate
+const MODULE_COLUMNS: { key: keyof CsvRow; title: string }[] = [
+  { key: "ms_word", title: "MS Word" },
+  { key: "ms_excel", title: "MS Excel" },
+  { key: "ms_powerpoint", title: "MS PowerPoint" },
+  { key: "adobe_photoshop", title: "Adobe Photoshop" },
+  { key: "canva", title: "Canva" },
+];
 
 export function CsvImportModal() {
   const [open, setOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressStatus, setProgressStatus] = useState("");
   const [error, setError] = useState("");
-  
-  // State to hold the current student data being rendered in the hidden dom element
-  const [renderingStudent, setRenderingStudent] = useState<any>(null);
-  const certificateRef = useRef<HTMLDivElement>(null);
 
-  // Hidden file input ref
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    renderingStudent,
+    certificateRef,
+    downloadBatchCertificates,
+  } = useCertificateGenerator();
+
+  const handleDownloadTemplate = () => {
+    // Build a template where each module has its own column — no JSON needed!
+    const header = "first_name,middle_name,last_name,date_graduated,ms_word,ms_excel,ms_powerpoint,adobe_photoshop,canva";
+    const example1 = "John,D,Doe,2024-05-20,12,8,10,5,15";
+    const example2 = "Jane,,Smith,2024-05-20,20,15,18,,10";
+    const csvContent = "data:text/csv;charset=utf-8," + [header, example1, example2].join("\n");
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", "Arcer_CSV_Template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -53,15 +81,16 @@ export function CsvImportModal() {
       complete: async (results) => {
         try {
           await processCsvData(results.data);
-        } catch (err: any) {
-          setError(err.message || "An error occurred during processing.");
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : "An error occurred during processing.";
+          setError(message);
           setIsProcessing(false);
         }
       },
-      error: (error) => {
-        setError("Failed to parse CSV: " + error.message);
+      error: (parseError) => {
+        setError("Failed to parse CSV: " + parseError.message);
         setIsProcessing(false);
-      }
+      },
     });
   };
 
@@ -73,23 +102,23 @@ export function CsvImportModal() {
     setProgressStatus(`Saving ${data.length} students to database...`);
     const supabase = createClient();
 
-    // Map the CSV rows into the exact database schema format
+    // Map CSV rows to the database schema, converting columns to module objects
     const inserts = data.map((row) => {
-        let modules = [];
-        try {
-           modules = row.modules_completed ? JSON.parse(row.modules_completed) : [];
-        } catch(e) {
-           console.error("Invalid JSON in modules_completed column for", row.first_name);
-        }
-        
-        return {
-            first_name: row.first_name,
-            middle_name: row.middle_name || "",
-            last_name: row.last_name,
-            date_graduated: row.date_graduated || new Date().toISOString(),
-            date_entered: new Date().toISOString(),
-            modules_completed: modules,
-        }
+      const modules_completed = MODULE_COLUMNS
+        .filter((m) => row[m.key] && row[m.key]!.trim() !== "")
+        .map((m) => ({
+          title: m.title,
+          count: parseInt(row[m.key]!, 10) || 0,
+        }));
+
+      return {
+        first_name: row.first_name?.trim() || "",
+        middle_name: row.middle_name?.trim() || "",
+        last_name: row.last_name?.trim() || "",
+        date_graduated: row.date_graduated?.trim() || new Date().toISOString(),
+        date_entered: new Date().toISOString(),
+        modules_completed,
+      };
     });
 
     const { data: insertedRecords, error: dbError } = await supabase
@@ -98,160 +127,157 @@ export function CsvImportModal() {
       .select();
 
     if (dbError) throw new Error("Database insertion failed: " + dbError.message);
-    if (!insertedRecords) throw new Error("No records returned from database.");
+    if (!insertedRecords || insertedRecords.length === 0)
+      throw new Error("No records returned from database.");
 
-    setProgressStatus("Generating certificates... Please don't close this window.");
-    
-    // Initialize the zip file
-    const zip = new JSZip();
+    setProgressStatus("Generating certificates...");
 
-    // Loop through each inserted record, render it, and snap a picture
-    for (let i = 0; i < insertedRecords.length; i++) {
-        const student = insertedRecords[i];
-        
-        setProgressStatus(`Rendering certificate ${i + 1} of ${insertedRecords.length} (${student.first_name} ${student.last_name})...`);
-        
-        // 1. Set state to mount the component with this student's data
-        // We wrap in a promise to wait for React to finish rendering the DOM
-        await new Promise<void>((resolve) => {
-            setRenderingStudent({
-                id: student.id,
-                firstName: student.first_name,
-                middleName: student.middle_name,
-                lastName: student.last_name,
-                dateGraduated: student.date_graduated,
-                modulesCompleted: student.modules_completed,
-            });
-            // Give React and the QR Code canvas a tiny moment to paint the DOM
-            setTimeout(resolve, 300); 
-        });
+    // Map inserted records to the certificate format
+    const students = insertedRecords.map((s) => ({
+      id: s.id,
+      firstName: s.first_name,
+      middleName: s.middle_name || "",
+      lastName: s.last_name,
+      dateGraduated: s.date_graduated,
+      modulesCompleted: (s.modules_completed as { title: string; count: number }[]) ?? [],
+    }));
 
-        // 2. Snap the picture
-        if (certificateRef.current) {
-            try {
-                // Generate a high quality PNG blob
-                const dataUrl = await toPng(certificateRef.current, {
-                   pixelRatio: 1, // 1 is enough since our base div is already 2000px wide
-                   cacheBust: true,
-                });
-                
-                // Convert base64 dataUrl to blob for jszip
-                const base64Data = dataUrl.split(",")[1];
-                const fileName = `${student.first_name}_${student.last_name}_Certificate.png`.replace(/\s+/g, '_');
-                
-                zip.file(fileName, base64Data, { base64: true });
-            } catch (snapError) {
-                console.error("Failed to snapshot certificate for " + student.first_name, snapError);
-            }
-        }
-    }
-
-    setProgressStatus("Packaging ZIP file...");
-    const zipBlob = await zip.generateAsync({ type: "blob" });
-    
-    setProgressStatus("Downloading...");
-    saveAs(zipBlob, `Arcer_Graduates_${new Date().toISOString().split('T')[0]}.zip`);
+    await downloadBatchCertificates(students);
 
     setIsProcessing(false);
     setProgressStatus("");
-    setRenderingStudent(null);
-    setOpen(false); // Close modal on success
-    
-    // Refresh the page to show the newly added students in the list
+    setOpen(false);
     window.location.reload();
   };
 
+  const combinedIsProcessing = isProcessing;
+
   return (
     <>
-      <Dialog open={open} onOpenChange={(val) => {
-         if(!isProcessing) setOpen(val);
-      }}>
+      <Dialog
+        open={open}
+        onOpenChange={(val) => {
+          if (!combinedIsProcessing) setOpen(val);
+        }}
+      >
         <DialogTrigger asChild>
-          <Button variant="outline" className="gap-2 font-medium bg-white hover:bg-slate-50 border-slate-300">
+          <Button
+            variant="outline"
+            className="gap-2 font-medium bg-white hover:bg-slate-50 border-slate-300"
+          >
             <FileUp className="h-4 w-4" />
             Bulk Import (.csv)
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>CSV Bulk Import</DialogTitle>
             <DialogDescription>
-              Upload a .csv file of graduates. The system will create their profiles and automatically download a .zip containing their generated graphical certificates.
+              Upload a .csv file of graduates. The system will create their profiles and
+              automatically download a .zip containing their generated certificates.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-             {error && (
-                 <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
-                     {error}
-                 </div>
-             )}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
+                {error}
+              </div>
+            )}
 
-             {!isProcessing ? (
-               <div className="space-y-4">
-                 <div className="flex justify-end relative z-10">
-                   <Button 
-                      variant="link" 
-                      onClick={() => {
-                        const csvContent = "data:text/csv;charset=utf-8," + 
-                          "first_name,middle_name,last_name,date_graduated,modules_completed\n" +
-                          'John,D,Doe,2024-05-20,"[{""title"":""React JS"",""count"":5},{""title"":""Next JS"",""count"":3}]"\n' +
-                          'Jane,,Smith,2024-05-20,"[{""title"":""Python Basics"",""count"":10}]"\n';
-                        
-                        const encodedUri = encodeURI(csvContent);
-                        const link = document.createElement("a");
-                        link.setAttribute("href", encodedUri);
-                        link.setAttribute("download", "Arcer_CSV_Template.csv");
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
-                      className="text-primary h-auto py-1 px-2 text-xs"
-                    >
-                     <Download className="w-3.5 h-3.5 mr-1" /> Download Example Template
-                   </Button>
-                 </div>
-                 
-                 <div 
-                     onClick={() => fileInputRef.current?.click()}
-                     className="flex justify-center rounded-lg border border-dashed border-slate-300 px-6 py-12 hover:bg-slate-50 hover:border-primary/50 cursor-pointer transition-colors"
-                 >
-                   <div className="text-center">
-                     <FileUp className="mx-auto h-12 w-12 text-slate-300" aria-hidden="true" />
-                     <div className="mt-4 flex text-sm leading-6 text-slate-600 justify-center">
-                       <span className="relative cursor-pointer rounded-md font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 hover:text-emerald-500">
-                         Upload a file
-                       </span>
-                       <p className="pl-1">or drag and drop</p>
-                     </div>
-                     <p className="text-xs leading-5 text-slate-500">CSV file containing graduate data</p>
-                   </div>
-                   <input
-                       ref={fileInputRef}
-                       type="file"
-                       accept=".csv"
-                       className="hidden"
-                       onChange={handleFileUpload}
-                   />
-                 </div>
-               </div>
-             ) : (
-                <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
-                    <p className="text-sm font-medium text-slate-700 animate-pulse">{progressStatus}</p>
-                    <p className="text-xs text-slate-500 text-center">This may take a minute depending on the batch size. Please do not close or refresh this tab.</p>
+            {!combinedIsProcessing ? (
+              <div className="space-y-4">
+                {/* Format Guide */}
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm space-y-2">
+                  <p className="font-semibold text-slate-800">CSV Column Format</p>
+                  <p className="text-slate-500 text-xs">Each module has its own column — just enter the number of sessions. Leave blank if not taken.</p>
+                  <div className="overflow-x-auto">
+                    <table className="text-xs w-full mt-1">
+                      <thead>
+                        <tr className="text-slate-400">
+                          <th className="text-left pr-3 pb-1 font-medium">first_name</th>
+                          <th className="text-left pr-3 pb-1 font-medium">last_name</th>
+                          <th className="text-left pr-3 pb-1 font-medium">date_graduated</th>
+                          <th className="text-left pr-3 pb-1 font-medium">ms_word</th>
+                          <th className="text-left pr-3 pb-1 font-medium">ms_excel</th>
+                          <th className="text-left pr-3 pb-1 font-medium">canva</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="text-slate-600">
+                          <td className="pr-3">John</td>
+                          <td className="pr-3">Doe</td>
+                          <td className="pr-3">2024-05-20</td>
+                          <td className="pr-3">12</td>
+                          <td className="pr-3">8</td>
+                          <td className="pr-3">15</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={handleDownloadTemplate}
+                    className="text-primary h-auto p-0 text-xs"
+                  >
+                    <Download className="w-3 h-3 mr-1" />
+                    Download Pre-filled Template (.csv)
+                  </Button>
                 </div>
-             )}
+
+                {/* Upload Drop Zone */}
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex justify-center rounded-lg border border-dashed border-slate-300 px-6 py-10 hover:bg-slate-50 hover:border-primary/50 cursor-pointer transition-colors"
+                >
+                  <div className="text-center">
+                    <FileUp className="mx-auto h-10 w-10 text-slate-300" />
+                    <div className="mt-3 flex text-sm leading-6 text-slate-600 justify-center">
+                      <span className="relative cursor-pointer rounded-md font-semibold text-primary hover:text-emerald-500">
+                        Upload a file
+                      </span>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs leading-5 text-slate-500">CSV file only</p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                <p className="text-sm font-medium text-slate-700 animate-pulse">
+                  {progressStatus}
+                </p>
+                <p className="text-xs text-slate-500 text-center">
+                  Please do not close or refresh this tab.
+                </p>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Hidden Render Pipeline */}
-      {/* This element must be in the DOM to be snapshotted, but we hide it visually off-screen */}
-      <div style={{ position: "absolute", top: "-9999px", left: "-9999px", pointerEvents: "none", zIndex: -9999 }}>
-         {renderingStudent && (
-             <BaseCertificate data={renderingStudent} passRef={certificateRef} />
-         )}
+      {/* Hidden Off-Screen Certificate Renderer */}
+      <div
+        style={{
+          position: "fixed",
+          top: "-9999px",
+          left: "-9999px",
+          pointerEvents: "none",
+          zIndex: -9999,
+        }}
+      >
+        {renderingStudent && (
+          <BaseCertificate data={renderingStudent} passRef={certificateRef} />
+        )}
       </div>
     </>
   );

@@ -2,18 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import type { CertificateStudentData } from "@/hooks/useCertificateGenerator";
 
-interface StudentCertificateData {
-  id: string; // The generated UUID from Supabase
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  dateGraduated: string;
-  modulesCompleted: { title: string; count: number }[];
-}
+// Re-export so consumers don't need to import from the hook directly
+export type { CertificateStudentData as StudentCertificateData };
 
 interface BaseCertificateProps {
-  data: StudentCertificateData;
+  data: CertificateStudentData;
   passRef?: React.RefObject<HTMLDivElement>;
 }
 

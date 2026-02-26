@@ -9,6 +9,7 @@ import { Users, Plus } from "lucide-react";
 import { DeleteStudentDialog } from "@/components/delete-student-dialog";
 import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
 import { CsvImportModal } from "@/components/csv-import-modal";
+import { DownloadCertificateButton } from "@/components/download-certificate-button";
 
 export default async function AdminDashboardPage() {
   const admin = await isAdmin();
@@ -97,6 +98,16 @@ export default async function AdminDashboardPage() {
                               date_entered: s.date_entered,
                               date_graduated: s.date_graduated,
                               modules_completed: s.modules_completed as { title: string; count: number }[],
+                            }}
+                          />
+                          <DownloadCertificateButton
+                            student={{
+                              id: s.id,
+                              firstName: s.first_name,
+                              middleName: s.middle_name || "",
+                              lastName: s.last_name,
+                              dateGraduated: s.date_graduated,
+                              modulesCompleted: (s.modules_completed as { title: string; count: number }[]) ?? [],
                             }}
                           />
                           <Button variant="outline" size="sm" asChild>
