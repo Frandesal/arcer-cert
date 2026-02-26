@@ -13,14 +13,13 @@ import {
 } from "@/components/ui/dialog";
 import { FileUp, Loader2, Download } from "lucide-react";
 import Papa from "papaparse";
-import { BaseCertificate } from "./base-certificate";
-import { useCertificateGenerator } from "@/hooks/useCertificateGenerator";
 
-// The new simplified CSV format — one column per module, no JSON needed
+// The simplified CSV format — one column per module + date_entered
 interface CsvRow {
   first_name: string;
   middle_name?: string;
   last_name: string;
+  date_entered?: string;
   date_graduated?: string;
   // Individual module count columns (the number for each module, or blank)
   ms_word?: string;
@@ -47,17 +46,11 @@ export function CsvImportModal() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const {
-    renderingStudent,
-    certificateRef,
-    downloadBatchCertificates,
-  } = useCertificateGenerator();
-
   const handleDownloadTemplate = () => {
-    // Build a template where each module has its own column — no JSON needed!
-    const header = "first_name,middle_name,last_name,date_graduated,ms_word,ms_excel,ms_powerpoint,adobe_photoshop,canva";
-    const example1 = "John,D,Doe,2024-05-20,12,8,10,5,15";
-    const example2 = "Jane,,Smith,2024-05-20,20,15,18,,10";
+    // One column per module + date_entered — simple for anyone to fill in Excel
+    const header = "first_name,middle_name,last_name,date_entered,date_graduated,ms_word,ms_excel,ms_powerpoint,adobe_photoshop,canva";
+    const example1 = "John,D,Doe,2024-01-10,2024-05-20,12,8,10,5,15";
+    const example2 = "Jane,,Smith,2024-01-10,2024-05-20,20,15,18,,10";
     const csvContent = "data:text/csv;charset=utf-8," + [header, example1, example2].join("\n");
     const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csvContent));
@@ -115,8 +108,8 @@ export function CsvImportModal() {
         first_name: row.first_name?.trim() || "",
         middle_name: row.middle_name?.trim() || "",
         last_name: row.last_name?.trim() || "",
-        date_graduated: row.date_graduated?.trim() || new Date().toISOString(),
-        date_entered: new Date().toISOString(),
+        date_entered: row.date_entered?.trim() || new Date().toISOString().split("T")[0],
+        date_graduated: row.date_graduated?.trim() || new Date().toISOString().split("T")[0],
         modules_completed,
       };
     });
@@ -130,20 +123,9 @@ export function CsvImportModal() {
     if (!insertedRecords || insertedRecords.length === 0)
       throw new Error("No records returned from database.");
 
-    setProgressStatus("Generating certificates...");
-
-    // Map inserted records to the certificate format
-    const students = insertedRecords.map((s) => ({
-      id: s.id,
-      firstName: s.first_name,
-      middleName: s.middle_name || "",
-      lastName: s.last_name,
-      dateEntered: s.date_entered,
-      dateGraduated: s.date_graduated,
-      modulesCompleted: (s.modules_completed as { title: string; count: number }[]) ?? [],
-    }));
-
-    await downloadBatchCertificates(students);
+    // Done — no auto certificate download. Use the individual or bulk download buttons instead.
+    setProgressStatus(`Successfully imported ${insertedRecords.length} student${insertedRecords.length !== 1 ? "s" : ""}!`);
+    await new Promise((r) => setTimeout(r, 1500)); // Show success message briefly
 
     setIsProcessing(false);
     setProgressStatus("");
@@ -265,21 +247,6 @@ export function CsvImportModal() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Hidden Off-Screen Certificate Renderer */}
-      <div
-        style={{
-          position: "fixed",
-          top: "-9999px",
-          left: "-9999px",
-          pointerEvents: "none",
-          zIndex: -9999,
-        }}
-      >
-        {renderingStudent && (
-          <BaseCertificate data={renderingStudent} passRef={certificateRef} />
-        )}
-      </div>
     </>
   );
 }

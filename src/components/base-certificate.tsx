@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import type { CertificateStudentData } from "@/hooks/useCertificateGenerator";
 
-// Re-export so consumers don't need to import from the hook directly
 export type { CertificateStudentData as StudentCertificateData };
 
 interface BaseCertificateProps {
@@ -12,6 +11,21 @@ interface BaseCertificateProps {
   passRef?: React.RefObject<HTMLDivElement>;
 }
 
+/**
+ * Renders the certificate template with data overlaid ONLY in the blank spaces.
+ * The template background already contains all the paragraph text, so we only
+ * need to position our data values over the existing blank underlines.
+ *
+ * Canvas: 2000 x 1414 px (landscape)
+ *
+ * Overlay targets (approximate pixel positions on the 2000x1414 canvas):
+ *  - Student name  : top ~740px, horizontally centered
+ *  - Start date    : top ~708px, left ~490px  (fills "from ___" blank)
+ *  - End date      : top ~708px, left ~910px  (fills "to ___" blank)
+ *  - Given day     : top ~940px, left ~288px  (fills "Given this ___")
+ *  - Given month/yr: top ~940px, left ~600px  (fills "day of ___")
+ *  - QR Code       : bottom-left, above signatory area
+ */
 export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
 
@@ -37,16 +51,9 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
     .join(" ")
     .toUpperCase();
 
-  // Parse graduation date for the "Given this" line
   const gradDate = new Date(data.dateGraduated);
-  const givenDay = gradDate.getDate();
-  const givenMonthYear = gradDate.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-
-  // Format the from/to dates for the body paragraph
   const startDate = new Date(data.dateEntered ?? data.dateGraduated);
+
   const formattedStart = startDate.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
@@ -58,7 +65,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
     year: "numeric",
   });
 
-  // Canvas: 2000 x 1414 px (landscape standard)
+  // "Given this" line: day number + Month Year
+  const givenDay = gradDate.getDate();
+  const givenMonthYear = gradDate.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+
   return (
     <div
       ref={passRef}
@@ -69,130 +82,110 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         backgroundColor: "#ffffff",
         backgroundImage: `url('/certificate-bg.jpg')`,
         backgroundSize: "100% 100%",
-        backgroundPosition: "center",
-        fontFamily: "Georgia, 'Times New Roman', serif",
         overflow: "hidden",
       }}
     >
-      {/* ── Student Full Name ──────────────────────────────────────────────── */}
-      {/* Positioned below the ribbon banner under "to", centered */}
+      {/* ── Student Full Name ─────────────────────────────────────────────────
+          Placed on the blank underline below the "to" text.
+          The ribbon banner centre is ~430px; the blank line sits ~520-540px. */}
       <div
         style={{
           position: "absolute",
-          top: "490px",
-          left: "200px",
-          right: "200px",
+          top: "510px",
+          left: "0",
+          width: "2000px",
           textAlign: "center",
+          fontSize: "62px",
+          fontWeight: "bold",
+          fontFamily: "Arial Black, Arial, sans-serif",
+          color: "#1a1a1a",
+          letterSpacing: "3px",
+          lineHeight: 1,
         }}
       >
-        <span
-          style={{
-            fontSize: "64px",
-            fontWeight: "bold",
-            color: "#000000",
-            letterSpacing: "2px",
-            fontFamily: "Georgia, serif",
-          }}
-        >
-          {fullName}
-        </span>
-        {/* Underline matching template */}
-        <div
-          style={{
-            borderBottom: "2px solid #000000",
-            marginTop: "4px",
-            marginLeft: "40px",
-            marginRight: "40px",
-          }}
-        />
+        {fullName}
       </div>
 
-      {/* ── Body Paragraph (from / to dates) ─────────────────────────────── */}
-      {/* "Has satisfactorily completed ... from [start] to [end] at Arcer..." */}
+      {/* ── Start Date (fills "from ____" blank in the body paragraph) ─────── */}
       <div
         style={{
           position: "absolute",
-          top: "640px",
-          left: "130px",
-          right: "130px",
-          textAlign: "center",
-          fontSize: "34px",
+          top: "702px",
+          left: "490px",
+          fontSize: "30px",
+          fontWeight: "bold",
           fontStyle: "italic",
-          color: "#000000",
-          lineHeight: "1.6",
           fontFamily: "Georgia, serif",
-        }}
-      >
-        Has satisfactorily completed the{" "}
-        <span style={{ textDecoration: "underline", fontWeight: "bold" }}>
-          120 hours
-        </span>{" "}
-        Computer Literacy Training of Corel Draw,
-        <br />
-        Adobe Photoshop and Microsoft Office{" "}
-        <span style={{ fontWeight: "bold" }}>from{" "}
-          <span style={{ textDecoration: "underline" }}>{formattedStart}</span>
-          {" "}to{" "}
-          <span style={{ textDecoration: "underline" }}>{formattedEnd}</span>
-        </span>{" "}
-        at Arcer
-        <br />
-        Computer Educational Development System Inc.
-      </div>
-
-      {/* ── "Given this" line ────────────────────────────────────────────── */}
-      <div
-        style={{
-          position: "absolute",
-          top: "920px",
-          left: "130px",
-          fontSize: "34px",
-          fontStyle: "italic",
-          color: "#000000",
-          fontFamily: "Georgia, serif",
+          color: "#111111",
           whiteSpace: "nowrap",
         }}
       >
-        Given this{" "}
-        <span
-          style={{
-            display: "inline-block",
-            borderBottom: "2px solid #000",
-            minWidth: "90px",
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
-          {givenDay}
-        </span>{" "}
-        day of{" "}
-        <span
-          style={{
-            display: "inline-block",
-            borderBottom: "2px solid #000",
-            minWidth: "220px",
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
-          {givenMonthYear}
-        </span>{" "}
-        at Poblacion Buug, ZSP.
+        {formattedStart}
       </div>
 
-      {/* ── QR Code ─────────────────────────────────────────────────────── */}
-      {/* Bottom-left, above the left signatory area */}
+      {/* ── End Date (fills "to ____" blank in the body paragraph) ──────────── */}
       <div
         style={{
           position: "absolute",
-          bottom: "155px",
-          left: "60px",
-          width: "200px",
-          height: "200px",
+          top: "702px",
+          left: "990px",
+          fontSize: "30px",
+          fontWeight: "bold",
+          fontStyle: "italic",
+          fontFamily: "Georgia, serif",
+          color: "#111111",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {formattedEnd}
+      </div>
+
+      {/* ── "Given this" Day number ───────────────────────────────────────── */}
+      <div
+        style={{
+          position: "absolute",
+          top: "930px",
+          left: "300px",
+          fontSize: "30px",
+          fontWeight: "bold",
+          fontStyle: "italic",
+          fontFamily: "Georgia, serif",
+          color: "#111111",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {givenDay}
+      </div>
+
+      {/* ── "Given this" Month + Year ─────────────────────────────────────── */}
+      <div
+        style={{
+          position: "absolute",
+          top: "930px",
+          left: "600px",
+          fontSize: "30px",
+          fontWeight: "bold",
+          fontStyle: "italic",
+          fontFamily: "Georgia, serif",
+          color: "#111111",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {givenMonthYear}
+      </div>
+
+      {/* ── QR Code — bottom-left, above left signatory ───────────────────── */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "140px",
+          left: "55px",
+          width: "210px",
+          height: "210px",
           backgroundColor: "#ffffff",
-          padding: "8px",
-          borderRadius: "8px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          padding: "6px",
+          borderRadius: "6px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
         }}
       >
         {qrCodeDataUrl ? (
