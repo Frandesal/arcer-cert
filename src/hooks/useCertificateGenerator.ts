@@ -2,14 +2,13 @@
 
 import { useState, useRef, useCallback } from "react";
 import { toPng } from "html-to-image";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
 
 export interface CertificateStudentData {
   id: string;
   firstName: string;
   middleName?: string;
   lastName: string;
+  dateEntered?: string;
   dateGraduated: string;
   modulesCompleted: { title: string; count: number }[];
 }
@@ -19,12 +18,11 @@ export type { CertificateStudentData as StudentCertificateData };
 
 /**
  * A shared hook that manages the off-screen certificate rendering pipeline.
- * It can render a certificate for a single student (downloading a PNG),
- * or loop through a batch and download a ZIP.
+ * Renders certificates as PNG images via html-to-image, then stitches them
+ * into a print-ready landscape PDF using jsPDF.
  *
- * Usage: The hook returns a `renderingStudent` state and a `certificateRef`.
- * You must mount `<BaseCertificate data={renderingStudent} passRef={certificateRef} />`
- * somewhere in the component tree (off-screen) for this hook to work.
+ * Usage: Mount <BaseCertificate data={renderingStudent} passRef={certificateRef} />
+ * off-screen in the component tree for the snapshot to work.
  */
 export function useCertificateGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -48,7 +46,7 @@ export function useCertificateGenerator() {
   }, []);
 
   /**
-   * Generate and immediately download a single student's certificate as a PNG.
+   * Render and download a single student's certificate as a single-page PDF.
    */
   const downloadSingleCertificate = useCallback(
     async (student: CertificateStudentData) => {
@@ -57,17 +55,20 @@ export function useCertificateGenerator() {
 
       await new Promise<void>((resolve) => {
         setRenderingStudent(student);
-        // Give React enough time to paint the hidden DOM element
-        setTimeout(resolve, 400);
+        setTimeout(resolve, 500);
       });
 
       const dataUrl = await snapCertificate();
+
       if (dataUrl) {
-        const fileName = `${student.firstName}_${student.lastName}_Certificate.png`.replace(
-          /\s+/g,
-          "_"
-        );
-        saveAs(dataUrl, fileName);
+        setGeneratingStatus("Building PDF...");
+        // Dynamically import jspdf to keep bundle size manageable
+        const { jsPDF } = await import("jspdf");
+        // A4 landscape: 297mm x 210mm
+        const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+        pdf.addImage(dataUrl, "PNG", 0, 0, 297, 210);
+        const fileName = `${student.firstName}_${student.lastName}_Certificate.pdf`.replace(/\s+/g, "_");
+        pdf.save(fileName);
       }
 
       setRenderingStudent(null);
@@ -78,44 +79,40 @@ export function useCertificateGenerator() {
   );
 
   /**
-   * Generate certificates for a batch of students and download a ZIP.
+   * Generate certificates for a batch of students and download a single multi-page PDF.
+   * Each student gets their own page — perfectly print-ready.
    */
   const downloadBatchCertificates = useCallback(
-    async (
-      students: CertificateStudentData[],
-      zipFileName?: string
-    ) => {
+    async (students: CertificateStudentData[], pdfFileName?: string) => {
       setIsGenerating(true);
-      const zip = new JSZip();
+
+      // Dynamically import jspdf
+      const { jsPDF } = await import("jspdf");
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
       for (let i = 0; i < students.length; i++) {
         const student = students[i];
         setGeneratingStatus(
-          `Rendering certificate ${i + 1} of ${students.length} (${student.firstName} ${student.lastName})...`
+          `Rendering certificate ${i + 1} of ${students.length} — ${student.firstName} ${student.lastName}...`
         );
 
         await new Promise<void>((resolve) => {
           setRenderingStudent(student);
-          setTimeout(resolve, 400);
+          setTimeout(resolve, 500);
         });
 
         const dataUrl = await snapCertificate();
         if (dataUrl) {
-          const base64Data = dataUrl.split(",")[1];
-          const fileName = `${student.firstName}_${student.lastName}_Certificate.png`.replace(
-            /\s+/g,
-            "_"
-          );
-          zip.file(fileName, base64Data, { base64: true });
+          if (i > 0) pdf.addPage();
+          pdf.addImage(dataUrl, "PNG", 0, 0, 297, 210);
         }
       }
 
-      setGeneratingStatus("Packaging ZIP file...");
-      const zipBlob = await zip.generateAsync({ type: "blob" });
+      setGeneratingStatus("Saving PDF...");
       const finalFileName =
-        zipFileName ||
-        `Arcer_Graduates_${new Date().toISOString().split("T")[0]}.zip`;
-      saveAs(zipBlob, finalFileName);
+        pdfFileName ||
+        `Arcer_Certificates_${new Date().toISOString().split("T")[0]}.pdf`;
+      pdf.save(finalFileName);
 
       setRenderingStudent(null);
       setIsGenerating(false);

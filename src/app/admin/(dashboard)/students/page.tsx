@@ -6,12 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Plus } from "lucide-react";
 
-import { DeleteStudentDialog } from "@/components/delete-student-dialog";
-import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
 import { CsvImportModal } from "@/components/csv-import-modal";
-import { DownloadCertificateButton } from "@/components/download-certificate-button";
+import { StudentSelectionManager } from "@/components/student-selection-manager";
 
-export default async function AdminDashboardPage() {
+export default async function AdminStudentsPage() {
   const admin = await isAdmin();
   if (!admin) {
     redirect("/admin/login");
@@ -23,9 +21,18 @@ export default async function AdminDashboardPage() {
     .select("id, first_name, middle_name, last_name, date_entered, date_graduated, modules_completed")
     .order("date_graduated", { ascending: false });
 
+  const studentRows = (students ?? []).map((s) => ({
+    id: s.id,
+    first_name: s.first_name,
+    middle_name: s.middle_name,
+    last_name: s.last_name,
+    date_entered: s.date_entered,
+    date_graduated: s.date_graduated,
+    modules_completed: (s.modules_completed as { title: string; count: number }[]) ?? [],
+  }));
+
   return (
     <div className="flex flex-col">
-
       <main className="flex-1">
         <div className="bg-gradient-to-b from-primary/5 to-transparent py-8">
           <div className="container mx-auto max-w-6xl px-4 sm:px-6">
@@ -49,7 +56,8 @@ export default async function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Stats Card */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
               <Card className="border-slate-200/80 bg-white shadow-card transition-shadow hover:shadow-card-hover">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-slate-500">
@@ -59,7 +67,7 @@ export default async function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold text-slate-900">
-                    {students?.length ?? 0}
+                    {studentRows.length}
                   </p>
                   <Link
                     href="/students"
@@ -71,58 +79,20 @@ export default async function AdminDashboardPage() {
               </Card>
             </div>
 
-            <div className="mt-8">
-              <h2 className="mb-4 text-xl font-semibold text-slate-900">
-                Recent Graduates
-              </h2>
-              <div className="space-y-3">
-                {(students ?? []).slice(0, 10).map((s) => {
-                  const fullName = [s.first_name, s.middle_name, s.last_name]
-                    .filter(Boolean)
-                    .join(" ");
-                  return (
-                    <Card key={s.id} className="border-slate-200/80 bg-white shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card-hover group">
-                      <CardHeader className="flex flex-row items-center justify-between py-4">
-                        <div>
-                          <p className="font-medium text-slate-900 group-hover:text-primary transition-colors">{fullName}</p>
-                          <p className="text-sm text-slate-600">
-                            Graduated:{" "}
-                            {new Date(s.date_graduated).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <AdminStudentViewModal
-                            student={{
-                              id: s.id,
-                              fullName,
-                              date_entered: s.date_entered,
-                              date_graduated: s.date_graduated,
-                              modules_completed: s.modules_completed as { title: string; count: number }[],
-                            }}
-                          />
-                          <DownloadCertificateButton
-                            student={{
-                              id: s.id,
-                              firstName: s.first_name,
-                              middleName: s.middle_name || "",
-                              lastName: s.last_name,
-                              dateGraduated: s.date_graduated,
-                              modulesCompleted: (s.modules_completed as { title: string; count: number }[]) ?? [],
-                            }}
-                          />
-                          <Button variant="outline" size="sm" asChild>
-                            <Link href={`/admin/students/${s.id}/edit`}>
-                              Edit
-                            </Link>
-                          </Button>
-                          <DeleteStudentDialog studentId={s.id} studentName={fullName} />
-                        </div>
-                      </CardHeader>
-                    </Card>
-                  );
-                })}
+            {/* Student List with Bulk Selection */}
+            <div className="mt-2">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-slate-900">
+                  All Graduates
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Select students to bulk-download certificates as PDF
+                </p>
               </div>
-              {(!students || students.length === 0) && (
+
+              {studentRows.length > 0 ? (
+                <StudentSelectionManager students={studentRows} />
+              ) : (
                 <Card className="border-slate-200/80 bg-white shadow-card">
                   <CardContent className="py-12 text-center text-slate-600">
                     No graduates yet. Add your first student to get started.
@@ -133,7 +103,6 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
       </main>
-
     </div>
   );
 }

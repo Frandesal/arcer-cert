@@ -16,17 +16,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
 
   useEffect(() => {
-    // Generate the QR Code pointing to the public verification page
     const generateQR = async () => {
       try {
         const url = `${window.location.origin}/verify/${data.id}`;
         const qrUrl = await QRCode.toDataURL(url, {
-          width: 300,
+          width: 320,
           margin: 1,
-          color: {
-            dark: "#0f172a", // slate-900
-            light: "#ffffff",
-          },
+          color: { dark: "#000000", light: "#ffffff" },
         });
         setQrCodeDataUrl(qrUrl);
       } catch (err) {
@@ -38,116 +34,177 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
 
   const fullName = [data.firstName, data.middleName, data.lastName]
     .filter(Boolean)
-    .join(" ");
+    .join(" ")
+    .toUpperCase();
 
-  const formattedDate = new Date(data.dateGraduated).toLocaleDateString("en-US", {
-    year: "numeric",
+  // Parse graduation date for the "Given this" line
+  const gradDate = new Date(data.dateGraduated);
+  const givenDay = gradDate.getDate();
+  const givenMonthYear = gradDate.toLocaleDateString("en-US", {
     month: "long",
-    day: "numeric",
+    year: "numeric",
   });
 
+  // Format the from/to dates for the body paragraph
+  const startDate = new Date(data.dateEntered ?? data.dateGraduated);
+  const formattedStart = startDate.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const formattedEnd = gradDate.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  // Canvas: 2000 x 1414 px (landscape standard)
   return (
     <div
       ref={passRef}
-      // Fixed pixel sizes guarantee high-resolution A4/Letter rendering. 
-      // 2000x1414 is roughly standard landscape certificate aspect ratio
       style={{
         width: "2000px",
         height: "1414px",
         position: "relative",
         backgroundColor: "#ffffff",
-        backgroundImage: `url('/certificate-bg.png')`,
-        backgroundSize: "cover",
+        backgroundImage: `url('/certificate-bg.jpg')`,
+        backgroundSize: "100% 100%",
         backgroundPosition: "center",
-        fontFamily: "Arial, sans-serif",
-        color: "#0f172a",
+        fontFamily: "Georgia, 'Times New Roman', serif",
         overflow: "hidden",
       }}
     >
-      {/* Graduate Name Overlay */}
+      {/* ── Student Full Name ──────────────────────────────────────────────── */}
+      {/* Positioned below the ribbon banner under "to", centered */}
       <div
         style={{
           position: "absolute",
-          top: "45%", // Adjust these positioning percentages based on the actual PNG template
-          left: "0",
-          width: "100%",
+          top: "490px",
+          left: "200px",
+          right: "200px",
           textAlign: "center",
         }}
       >
-        <h1 style={{ fontSize: "100px", fontWeight: "bold", margin: 0, color: "#064e3b" }}>
+        <span
+          style={{
+            fontSize: "64px",
+            fontWeight: "bold",
+            color: "#000000",
+            letterSpacing: "2px",
+            fontFamily: "Georgia, serif",
+          }}
+        >
           {fullName}
-        </h1>
-        <p style={{ fontSize: "36px", marginTop: "20px", color: "#475569" }}>
-          Has successfully completed the tech modules below on {formattedDate}.
-        </p>
+        </span>
+        {/* Underline matching template */}
+        <div
+          style={{
+            borderBottom: "2px solid #000000",
+            marginTop: "4px",
+            marginLeft: "40px",
+            marginRight: "40px",
+          }}
+        />
       </div>
 
-      {/* Modules Overlay */}
+      {/* ── Body Paragraph (from / to dates) ─────────────────────────────── */}
+      {/* "Has satisfactorily completed ... from [start] to [end] at Arcer..." */}
       <div
         style={{
           position: "absolute",
-          top: "65%",
-          left: "15%",
-          right: "40%", // Leave space on the right for the signature/QR
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "20px",
-          justifyContent: "center",
+          top: "640px",
+          left: "130px",
+          right: "130px",
+          textAlign: "center",
+          fontSize: "34px",
+          fontStyle: "italic",
+          color: "#000000",
+          lineHeight: "1.6",
+          fontFamily: "Georgia, serif",
         }}
       >
-        {data.modulesCompleted?.map((mod, idx) => (
-          <div
-            key={idx}
-            style={{
-              padding: "15px 30px",
-              backgroundColor: "rgba(16, 185, 129, 0.1)", // emerald-500/10
-              border: "3px solid #10b981",
-              borderRadius: "50px",
-              fontSize: "28px",
-              fontWeight: "600",
-              color: "#064e3b",
-            }}
-          >
-            {mod.title} ({mod.count})
-          </div>
-        ))}
+        Has satisfactorily completed the{" "}
+        <span style={{ textDecoration: "underline", fontWeight: "bold" }}>
+          120 hours
+        </span>{" "}
+        Computer Literacy Training of Corel Draw,
+        <br />
+        Adobe Photoshop and Microsoft Office{" "}
+        <span style={{ fontWeight: "bold" }}>from{" "}
+          <span style={{ textDecoration: "underline" }}>{formattedStart}</span>
+          {" "}to{" "}
+          <span style={{ textDecoration: "underline" }}>{formattedEnd}</span>
+        </span>{" "}
+        at Arcer
+        <br />
+        Computer Educational Development System Inc.
       </div>
 
-      {/* QR Code Overlay */}
+      {/* ── "Given this" line ────────────────────────────────────────────── */}
       <div
         style={{
           position: "absolute",
-          bottom: "120px",
-          right: "150px",
-          width: "250px",
-          height: "250px",
-          padding: "15px",
+          top: "920px",
+          left: "130px",
+          fontSize: "34px",
+          fontStyle: "italic",
+          color: "#000000",
+          fontFamily: "Georgia, serif",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Given this{" "}
+        <span
+          style={{
+            display: "inline-block",
+            borderBottom: "2px solid #000",
+            minWidth: "90px",
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          {givenDay}
+        </span>{" "}
+        day of{" "}
+        <span
+          style={{
+            display: "inline-block",
+            borderBottom: "2px solid #000",
+            minWidth: "220px",
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          {givenMonthYear}
+        </span>{" "}
+        at Poblacion Buug, ZSP.
+      </div>
+
+      {/* ── QR Code ─────────────────────────────────────────────────────── */}
+      {/* Bottom-left, above the left signatory area */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "155px",
+          left: "60px",
+          width: "200px",
+          height: "200px",
           backgroundColor: "#ffffff",
-          borderRadius: "20px",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+          padding: "8px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
         }}
       >
         {qrCodeDataUrl ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={qrCodeDataUrl} alt="Verification QR Code" style={{ width: "100%", height: "100%" }} />
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={qrCodeDataUrl}
+            alt="Verification QR Code"
+            style={{ width: "100%", height: "100%" }}
+          />
         ) : (
           <div style={{ width: "100%", height: "100%", backgroundColor: "#f1f5f9" }} />
         )}
-        <p style={{ textAlign: "center", marginTop: "10px", fontSize: "16px", color: "#64748b", fontWeight: "bold" }}>
-          SCAN TO VERIFY
-        </p>
-      </div>
-      
-      {/* Verification Link Text */}
-      <div style={{
-          position: "absolute",
-          bottom: "40px",
-          width: "100%",
-          textAlign: "center",
-          fontSize: "24px",
-          color: "#94a3b8"
-      }}>
-         Verify authenticity at: {window.location.origin}/verify/{data.id}
       </div>
     </div>
   );

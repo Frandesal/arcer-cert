@@ -138,6 +138,7 @@ export function CsvImportModal() {
       firstName: s.first_name,
       middleName: s.middle_name || "",
       lastName: s.last_name,
+      dateEntered: s.date_entered,
       dateGraduated: s.date_graduated,
       modulesCompleted: (s.modules_completed as { title: string; count: number }[]) ?? [],
     }));
