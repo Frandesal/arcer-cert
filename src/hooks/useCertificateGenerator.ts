@@ -65,8 +65,8 @@ export function useCertificateGenerator() {
         // Dynamically import jspdf to keep bundle size manageable
         const { jsPDF } = await import("jspdf");
         // A4 landscape: 297mm x 210mm
-        const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-        pdf.addImage(dataUrl, "PNG", 0, 0, 297, 210);
+        const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "letter" });
+        pdf.addImage(dataUrl, "PNG", 0, 0, 279.4, 215.9);
         const fileName = `${student.firstName}_${student.lastName}_Certificate.pdf`.replace(/\s+/g, "_");
         pdf.save(fileName);
       }
@@ -88,7 +88,7 @@ export function useCertificateGenerator() {
 
       // Dynamically import jspdf
       const { jsPDF } = await import("jspdf");
-      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "letter" });
 
       for (let i = 0; i < students.length; i++) {
         const student = students[i];
@@ -104,7 +104,7 @@ export function useCertificateGenerator() {
         const dataUrl = await snapCertificate();
         if (dataUrl) {
           if (i > 0) pdf.addPage();
-          pdf.addImage(dataUrl, "PNG", 0, 0, 297, 210);
+          pdf.addImage(dataUrl, "PNG", 0, 0, 279.4, 215.9);
         }
       }
 

@@ -12,19 +12,11 @@ interface BaseCertificateProps {
 }
 
 /**
- * Renders the certificate template with data overlaid ONLY in the blank spaces.
- * The template background already contains all the paragraph text, so we only
- * need to position our data values over the existing blank underlines.
+ * Certificate overlay for US Letter Landscape (11 x 8.5 in).
+ * Canvas: 2200 x 1700 px (letter landscape at ~200 DPI).
  *
- * Canvas: 2000 x 1414 px (landscape)
- *
- * Overlay targets (approximate pixel positions on the 2000x1414 canvas):
- *  - Student name  : top ~740px, horizontally centered
- *  - Start date    : top ~708px, left ~490px  (fills "from ___" blank)
- *  - End date      : top ~708px, left ~910px  (fills "to ___" blank)
- *  - Given day     : top ~940px, left ~288px  (fills "Given this ___")
- *  - Given month/yr: top ~940px, left ~600px  (fills "day of ___")
- *  - QR Code       : bottom-left, above signatory area
+ * ONLY blank-fill values are overlaid — the template background image
+ * already contains all printed paragraph text, headings, and signatures.
  */
 export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
@@ -65,19 +57,19 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
     year: "numeric",
   });
 
-  // "Given this" line: day number + Month Year
   const givenDay = gradDate.getDate();
   const givenMonthYear = gradDate.toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   });
 
+  // Canvas: 2200 x 1700 = US Letter Landscape ratio (11 : 8.5)
   return (
     <div
       ref={passRef}
       style={{
-        width: "2000px",
-        height: "1414px",
+        width: "2200px",
+        height: "1700px",
         position: "relative",
         backgroundColor: "#ffffff",
         backgroundImage: `url('/certificate-bg.jpg')`,
@@ -85,17 +77,17 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         overflow: "hidden",
       }}
     >
-      {/* ── Student Full Name ─────────────────────────────────────────────────
-          Placed on the blank underline below the "to" text.
-          The ribbon banner centre is ~430px; the blank line sits ~520-540px. */}
+      {/* ── Student Full Name ──────────────────────────────────
+          On the blank underline below "to", above the body paragraph.
+          ~37% from top = 629px */}
       <div
         style={{
           position: "absolute",
-          top: "510px",
+          top: "630px",
           left: "0",
-          width: "2000px",
+          width: "2200px",
           textAlign: "center",
-          fontSize: "62px",
+          fontSize: "60px",
           fontWeight: "bold",
           fontFamily: "Arial Black, Arial, sans-serif",
           color: "#1a1a1a",
@@ -106,13 +98,15 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {fullName}
       </div>
 
-      {/* ── Start Date (fills "from ____" blank in the body paragraph) ─────── */}
+      {/* ── Start Date ("from ____" blank) ────────────────────
+          2nd line of body paragraph. ~54% from top = 918px.
+          "from" word ends at ~50% width; blank starts ~51% = 1120px */}
       <div
         style={{
           position: "absolute",
-          top: "702px",
-          left: "490px",
-          fontSize: "30px",
+          top: "915px",
+          left: "1080px",
+          fontSize: "28px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -123,13 +117,14 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {formattedStart}
       </div>
 
-      {/* ── End Date (fills "to ____" blank in the body paragraph) ──────────── */}
+      {/* ── End Date ("to ____" blank) ────────────────────────
+          Same line. "to" word ends at ~66%; blank starts ~67% = 1475px */}
       <div
         style={{
           position: "absolute",
-          top: "702px",
-          left: "990px",
-          fontSize: "30px",
+          top: "915px",
+          left: "1480px",
+          fontSize: "28px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -140,46 +135,52 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {formattedEnd}
       </div>
 
-      {/* ── "Given this" Day number ───────────────────────────────────────── */}
+      {/* ── Given Day ("Given this ____ day") ─────────────────
+          ~65% from top = 1105px. "Given this" ends ~18% = 396px */}
       <div
         style={{
           position: "absolute",
-          top: "930px",
-          left: "300px",
-          fontSize: "30px",
+          top: "1105px",
+          left: "385px",
+          fontSize: "28px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
           color: "#111111",
           whiteSpace: "nowrap",
+          textAlign: "center",
+          minWidth: "100px",
         }}
       >
         {givenDay}
       </div>
 
-      {/* ── "Given this" Month + Year ─────────────────────────────────────── */}
+      {/* ── Given Month + Year ("day of ____ at Poblacion") ───
+          Same line. "day of" ends ~32% = 704px */}
       <div
         style={{
           position: "absolute",
-          top: "930px",
-          left: "600px",
-          fontSize: "30px",
+          top: "1105px",
+          left: "700px",
+          fontSize: "28px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
           color: "#111111",
           whiteSpace: "nowrap",
+          textAlign: "center",
+          minWidth: "220px",
         }}
       >
         {givenMonthYear}
       </div>
 
-      {/* ── QR Code — bottom-left, above left signatory ───────────────────── */}
+      {/* ── QR Code — bottom-left, above left signatory ─────── */}
       <div
         style={{
           position: "absolute",
-          bottom: "140px",
-          left: "55px",
+          bottom: "200px",
+          left: "60px",
           width: "210px",
           height: "210px",
           backgroundColor: "#ffffff",
