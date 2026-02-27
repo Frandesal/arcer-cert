@@ -69,15 +69,15 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         overflow: "hidden",
       }}
     >
-      {/* Student Name — perfectly on the underline below "to" ✅ */}
+      {/* Student Name */ }
       <div
         style={{
           position: "absolute",
-          top: "860px",
+          top: "830px",
           left: "0",
           width: "2200px",
           textAlign: "center",
-          fontSize: "58px",
+          fontSize: "60px",
           fontWeight: "bold",
           fontFamily: "Arial Black, Arial, sans-serif",
           color: "#1a1a1a",
@@ -88,13 +88,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {fullName}
       </div>
 
-      {/* Start Date — on the blank AFTER "from" */}
+      {/* Start Date */}
       <div
         style={{
           position: "absolute",
           top: "1050px",
-          left: "1200px",
-          fontSize: "26px",
+          left: "1175px",
+          fontSize: "33px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -105,13 +105,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {formattedStart}
       </div>
 
-      {/* End Date — on the blank AFTER "to" */}
+      {/* End Date */}
       <div
         style={{
           position: "absolute",
           top: "1050px",
-          left: "1580px",
-          fontSize: "26px",
+          left: "1560px",
+          fontSize: "33px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -122,13 +122,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {formattedEnd}
       </div>
 
-      {/* Given Day — on blank AFTER "Given this" */}
+      {/* Given Day */}
       <div
         style={{
           position: "absolute",
-          top: "1255px",
-          left: "710px",
-          fontSize: "26px",
+          top: "1240px",
+          left: "680px",
+          fontSize: "35px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -141,13 +141,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {givenDay}
       </div>
 
-      {/* Given Month+Year — on blank AFTER "day of" */}
+      {/* Given Month+Year */}
       <div
         style={{
           position: "absolute",
-          top: "1255px",
-          left: "1160px",
-          fontSize: "26px",
+          top: "1240px",
+          left: "1070px",
+          fontSize: "35px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -160,14 +160,14 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {givenMonthYear}
       </div>
 
-      {/* QR Code — bottom-left ✅ */}
+      {/* QR Code */}
       <div
         style={{
           position: "absolute",
-          bottom: "195px",
-          left: "90px",
-          width: "210px",
-          height: "210px",
+          bottom: "70px",
+          left: "70px",
+          width: "290px",
+          height: "290px",
           backgroundColor: "#ffffff",
           padding: "6px",
           borderRadius: "6px",
@@ -179,11 +179,29 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
           <img
             src={qrCodeDataUrl}
             alt="Verification QR Code"
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "290px", height: "290px" }}
           />
         ) : (
-          <div style={{ width: "100%", height: "100%", backgroundColor: "#f1f5f9" }} />
+          <div style={{ width: "290px", height: "290px", backgroundColor: "#f1f5f9" }} />
         )}
+      </div>
+
+      {/* QR Legitimacy Subtitle */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "25px",
+          left: "65px",
+          width: "302px", // 290px + 12px padding
+          textAlign: "center",
+          fontSize: "22px",
+          fontWeight: "bold",
+          fontFamily: "Arial, sans-serif",
+          color: "#ffffffff",
+          letterSpacing: "1px",
+        }}
+      >
+        SCAN TO VERIFY
       </div>
     </div>
   );

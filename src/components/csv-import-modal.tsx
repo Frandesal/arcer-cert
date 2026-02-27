@@ -14,7 +14,7 @@ import {
 import { FileUp, Loader2, Download } from "lucide-react";
 import Papa from "papaparse";
 
-// The simplified CSV format — one column per module + date_entered
+// CSV format definition
 interface CsvRow {
   first_name: string;
   middle_name?: string;
@@ -47,7 +47,7 @@ export function CsvImportModal() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDownloadTemplate = () => {
-    // One column per module + date_entered — simple for anyone to fill in Excel
+    // Generate simple CSV template
     const header = "first_name,middle_name,last_name,date_entered,date_graduated,ms_word,ms_excel,ms_powerpoint,adobe_photoshop,canva";
     const example1 = "John,D,Doe,2024-01-10,2024-05-20,12,8,10,5,15";
     const example2 = "Jane,,Smith,2024-01-10,2024-05-20,20,15,18,,10";
@@ -95,7 +95,7 @@ export function CsvImportModal() {
     setProgressStatus(`Saving ${data.length} students to database...`);
     const supabase = createClient();
 
-    // Map CSV rows to the database schema, converting columns to module objects
+    // Map CSV rows to the database schema
     const inserts = data.map((row) => {
       const modules_completed = MODULE_COLUMNS
         .filter((m) => row[m.key] && row[m.key]!.trim() !== "")
@@ -123,7 +123,7 @@ export function CsvImportModal() {
     if (!insertedRecords || insertedRecords.length === 0)
       throw new Error("No records returned from database.");
 
-    // Done — no auto certificate download. Use the individual or bulk download buttons instead.
+    // Display success message after saving
     setProgressStatus(`Successfully imported ${insertedRecords.length} student${insertedRecords.length !== 1 ? "s" : ""}!`);
     await new Promise((r) => setTimeout(r, 1500)); // Show success message briefly
 

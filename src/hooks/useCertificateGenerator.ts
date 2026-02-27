@@ -80,7 +80,6 @@ export function useCertificateGenerator() {
 
   /**
    * Generate certificates for a batch of students and download a single multi-page PDF.
-   * Each student gets their own page — perfectly print-ready.
    */
   const downloadBatchCertificates = useCallback(
     async (students: CertificateStudentData[], pdfFileName?: string) => {
