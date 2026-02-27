@@ -26,4 +26,4 @@ Replace `your@admin.email` with the email you used.
 
 ## 3. Restart the app
 
-If the dev server is running, restart it and refresh the page.
+If the dev server is running, restart it and refresh the page..
