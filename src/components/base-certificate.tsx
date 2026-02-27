@@ -11,13 +11,6 @@ interface BaseCertificateProps {
   passRef?: React.RefObject<HTMLDivElement>;
 }
 
-/**
- * Certificate overlay for US Letter Landscape (11 x 8.5 in).
- * Canvas: 2200 x 1700 px (letter landscape at ~200 DPI).
- *
- * ONLY blank-fill values are overlaid — the template background image
- * already contains all printed paragraph text, headings, and signatures.
- */
 export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
 
@@ -63,7 +56,7 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
     year: "numeric",
   });
 
-  // Canvas: 2200 x 1700 = US Letter Landscape ratio (11 : 8.5)
+  // Canvas: 2200 x 1700 = US Letter Landscape
   return (
     <div
       ref={passRef}
@@ -77,17 +70,15 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         overflow: "hidden",
       }}
     >
-      {/* ── Student Full Name ──────────────────────────────────
-          On the blank underline below "to", above the body paragraph.
-          ~37% from top = 629px */}
+      {/* Student Name — on blank underline below "to" (~42% from top) */}
       <div
         style={{
           position: "absolute",
-          top: "630px",
+          top: "720px",
           left: "0",
           width: "2200px",
           textAlign: "center",
-          fontSize: "60px",
+          fontSize: "58px",
           fontWeight: "bold",
           fontFamily: "Arial Black, Arial, sans-serif",
           color: "#1a1a1a",
@@ -98,15 +89,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {fullName}
       </div>
 
-      {/* ── Start Date ("from ____" blank) ────────────────────
-          2nd line of body paragraph. ~54% from top = 918px.
-          "from" word ends at ~50% width; blank starts ~51% = 1120px */}
+      {/* Start Date — "from ____" blank (~56% from top) */}
       <div
         style={{
           position: "absolute",
-          top: "915px",
-          left: "1080px",
-          fontSize: "28px",
+          top: "1000px",
+          left: "1100px",
+          fontSize: "26px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -117,14 +106,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {formattedStart}
       </div>
 
-      {/* ── End Date ("to ____" blank) ────────────────────────
-          Same line. "to" word ends at ~66%; blank starts ~67% = 1475px */}
+      {/* End Date — "to ____" blank (~56% from top) */}
       <div
         style={{
           position: "absolute",
-          top: "915px",
+          top: "1000px",
           left: "1480px",
-          fontSize: "28px",
+          fontSize: "26px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -135,14 +123,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {formattedEnd}
       </div>
 
-      {/* ── Given Day ("Given this ____ day") ─────────────────
-          ~65% from top = 1105px. "Given this" ends ~18% = 396px */}
+      {/* Given Day — "Given this ____ day" (~70% from top) */}
       <div
         style={{
           position: "absolute",
-          top: "1105px",
-          left: "385px",
-          fontSize: "28px",
+          top: "1195px",
+          left: "410px",
+          fontSize: "26px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -155,14 +142,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {givenDay}
       </div>
 
-      {/* ── Given Month + Year ("day of ____ at Poblacion") ───
-          Same line. "day of" ends ~32% = 704px */}
+      {/* Given Month+Year — "day of ____ at Poblacion" (~70% from top) */}
       <div
         style={{
           position: "absolute",
-          top: "1105px",
-          left: "700px",
-          fontSize: "28px",
+          top: "1195px",
+          left: "730px",
+          fontSize: "26px",
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -175,11 +161,11 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {givenMonthYear}
       </div>
 
-      {/* ── QR Code — bottom-left, above left signatory ─────── */}
+      {/* QR Code — bottom-left above signatory */}
       <div
         style={{
           position: "absolute",
-          bottom: "200px",
+          bottom: "175px",
           left: "60px",
           width: "210px",
           height: "210px",
