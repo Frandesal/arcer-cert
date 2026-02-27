@@ -56,7 +56,6 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
     year: "numeric",
   });
 
-  // Canvas: 2200 x 1700 = US Letter Landscape
   return (
     <div
       ref={passRef}
@@ -70,11 +69,11 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         overflow: "hidden",
       }}
     >
-      {/* Student Name — on blank underline below "to" (~42% from top) */}
+      {/* Student Name — perfectly on the underline below "to" ✅ */}
       <div
         style={{
           position: "absolute",
-          top: "720px",
+          top: "860px",
           left: "0",
           width: "2200px",
           textAlign: "center",
@@ -89,12 +88,12 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {fullName}
       </div>
 
-      {/* Start Date — "from ____" blank (~56% from top) */}
+      {/* Start Date — on the blank AFTER "from" */}
       <div
         style={{
           position: "absolute",
-          top: "1000px",
-          left: "1100px",
+          top: "1050px",
+          left: "1200px",
           fontSize: "26px",
           fontWeight: "bold",
           fontStyle: "italic",
@@ -106,12 +105,12 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {formattedStart}
       </div>
 
-      {/* End Date — "to ____" blank (~56% from top) */}
+      {/* End Date — on the blank AFTER "to" */}
       <div
         style={{
           position: "absolute",
-          top: "1000px",
-          left: "1480px",
+          top: "1050px",
+          left: "1580px",
           fontSize: "26px",
           fontWeight: "bold",
           fontStyle: "italic",
@@ -123,12 +122,12 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {formattedEnd}
       </div>
 
-      {/* Given Day — "Given this ____ day" (~70% from top) */}
+      {/* Given Day — on blank AFTER "Given this" */}
       <div
         style={{
           position: "absolute",
-          top: "1195px",
-          left: "410px",
+          top: "1255px",
+          left: "710px",
           fontSize: "26px",
           fontWeight: "bold",
           fontStyle: "italic",
@@ -142,12 +141,12 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {givenDay}
       </div>
 
-      {/* Given Month+Year — "day of ____ at Poblacion" (~70% from top) */}
+      {/* Given Month+Year — on blank AFTER "day of" */}
       <div
         style={{
           position: "absolute",
-          top: "1195px",
-          left: "730px",
+          top: "1255px",
+          left: "1160px",
           fontSize: "26px",
           fontWeight: "bold",
           fontStyle: "italic",
@@ -161,12 +160,12 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {givenMonthYear}
       </div>
 
-      {/* QR Code — bottom-left above signatory */}
+      {/* QR Code — bottom-left ✅ */}
       <div
         style={{
           position: "absolute",
-          bottom: "175px",
-          left: "60px",
+          bottom: "195px",
+          left: "90px",
           width: "210px",
           height: "210px",
           backgroundColor: "#ffffff",
