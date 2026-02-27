@@ -69,13 +69,16 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         overflow: "hidden",
       }}
     >
-      {/* Student Name */ }
+      {/* Student Name */}
       <div
         style={{
           position: "absolute",
           top: "830px",
           left: "0",
           width: "2200px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           textAlign: "center",
           fontSize: "60px",
           fontWeight: "bold",

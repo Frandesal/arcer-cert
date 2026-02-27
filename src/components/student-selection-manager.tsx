@@ -5,6 +5,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { BaseCertificate } from "@/components/base-certificate";
 import { DeleteStudentDialog } from "@/components/delete-student-dialog";
 import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
@@ -28,6 +35,8 @@ interface StudentSelectionManagerProps {
 
 export function StudentSelectionManager({ students }: StudentSelectionManagerProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [filterYear, setFilterYear] = useState<string>("all");
+  const [filterMonth, setFilterMonth] = useState<string>("all");
 
   const {
     isGenerating,
@@ -77,29 +86,84 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
     setSelected(new Set());
   };
 
-  const allSelected = selected.size === students.length && students.length > 0;
+  // Derive unique graduation years for the filter
+  const gradYears = Array.from(
+    new Set(students.map((s) => new Date(s.date_graduated).getFullYear().toString()))
+  ).sort((a, b) => b.localeCompare(a));
+
+  // Determine which students are visible based on filters
+  const filteredStudents = students.filter((s) => {
+    const d = new Date(s.date_graduated);
+    const matchesYear = filterYear === "all" || d.getFullYear().toString() === filterYear;
+    const matchesMonth =
+      filterMonth === "all" || (d.getMonth() + 1).toString().padStart(2, "0") === filterMonth;
+    return matchesYear && matchesMonth;
+  });
+
+  const allSelected = selected.size === filteredStudents.length && filteredStudents.length > 0;
   const someSelected = selected.size > 0;
 
   return (
     <>
-      {/* Select All row */}
-      {students.length > 0 && (
-        <div className="flex items-center gap-3 px-1 pb-2">
-          <Checkbox
-            id="select-all"
-            checked={allSelected}
-            onCheckedChange={toggleAll}
-            aria-label="Select all students"
-          />
-          <label htmlFor="select-all" className="text-sm text-slate-500 cursor-pointer select-none">
-            {allSelected ? "Deselect all" : `Select all (${students.length})`}
-          </label>
+      {/* Filters & Select All Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1 pb-4">
+        {filteredStudents.length > 0 ? (
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id="select-all"
+              checked={allSelected}
+              onCheckedChange={toggleAll}
+              aria-label="Select all students"
+            />
+            <label htmlFor="select-all" className="text-sm text-slate-500 cursor-pointer select-none">
+              {allSelected ? "Deselect all" : `Select all (${filteredStudents.length})`}
+            </label>
+          </div>
+        ) : (
+          <div className="text-sm text-slate-500">No students match filters.</div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <Select value={filterYear} onValueChange={setFilterYear}>
+            <SelectTrigger className="w-[140px] shadow-sm">
+              <SelectValue placeholder="Grad Year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Years</SelectItem>
+              {gradYears.map((y) => (
+                <SelectItem key={y} value={y}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={filterMonth} onValueChange={setFilterMonth}>
+            <SelectTrigger className="w-[140px] shadow-sm">
+              <SelectValue placeholder="Grad Month" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Months</SelectItem>
+              <SelectItem value="01">January</SelectItem>
+              <SelectItem value="02">February</SelectItem>
+              <SelectItem value="03">March</SelectItem>
+              <SelectItem value="04">April</SelectItem>
+              <SelectItem value="05">May</SelectItem>
+              <SelectItem value="06">June</SelectItem>
+              <SelectItem value="07">July</SelectItem>
+              <SelectItem value="08">August</SelectItem>
+              <SelectItem value="09">September</SelectItem>
+              <SelectItem value="10">October</SelectItem>
+              <SelectItem value="11">November</SelectItem>
+              <SelectItem value="12">December</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      )}
+      </div>
 
       {/* Student Rows */}
       <div className="space-y-3">
-        {students.map((s) => {
+        {filteredStudents.map((s) => {
           const fullName = [s.first_name, s.middle_name, s.last_name]
             .filter(Boolean)
             .join(" ");
