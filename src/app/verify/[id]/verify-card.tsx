@@ -34,7 +34,7 @@ export function VerifyCard({ student }: { student: Student }) {
             Certificate Verified
           </CardTitle>
           <p className="mt-2 text-slate-600">
-            This certificate has been successfully verified and is registered to Arcer.
+            This certificate has been successfully verified and is registered with Arcer Computer Educational Development System Inc.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -56,7 +56,7 @@ export function VerifyCard({ student }: { student: Student }) {
           </div>
           <div className="flex items-center justify-center gap-2 pt-4 text-sm text-slate-500">
             <GraduationCap className="h-4 w-4" />
-            <span>Registered with Arcer Registry & Portal</span>
+            <span>Arcer Computer Educational Development System Inc.</span>
           </div>
         </CardContent>
       </Card>

@@ -83,12 +83,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
           fontSize: "60px",
           fontWeight: "bold",
           fontFamily: `"Monotype Corsiva", cursive, Georgia, serif`,
+          textTransform: "capitalize",
           color: "#1a1a1a",
           letterSpacing: "3px",
           lineHeight: 1,
         }}
       >
-        {fullName}
+        {fullName.toLowerCase()}
       </div>
 
       {/* Start Date */}
