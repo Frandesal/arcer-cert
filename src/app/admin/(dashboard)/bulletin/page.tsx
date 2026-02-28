@@ -47,7 +47,7 @@ export default async function AdminBulletinPage() {
               <div className="space-y-3">
                 {(announcements ?? []).map((post) => (
                   <Card key={post.id} className="border-slate-200/80 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card-hover group">
-                    <CardHeader className="flex flex-row items-center justify-between py-4">
+                    <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4 sm:gap-0">
                       <div>
                         <div className="flex items-center gap-3 mb-1">
                           <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors text-lg">

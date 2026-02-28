@@ -82,7 +82,7 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
           textAlign: "center",
           fontSize: "60px",
           fontWeight: "bold",
-          fontFamily: "Arial Black, Arial, sans-serif",
+          fontFamily: `"Monotype Corsiva", cursive, Georgia, serif`,
           color: "#1a1a1a",
           letterSpacing: "3px",
           lineHeight: 1,
@@ -185,7 +185,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
             style={{ width: "290px", height: "290px" }}
           />
         ) : (
-          <div style={{ width: "290px", height: "290px", backgroundColor: "#f1f5f9" }} />
+          <div
+            style={{
+              width: "290px",
+              height: "290px",
+              backgroundColor: "#f1f5f9",
+            }}
+          />
         )}
       </div>
 

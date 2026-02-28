@@ -176,7 +176,7 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
                 isChecked ? "border-primary/40 bg-primary/5" : ""
               }`}
             >
-              <CardHeader className="flex flex-row items-center justify-between py-4">
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4 sm:gap-0">
                 <div className="flex items-center gap-3">
                   <Checkbox
                     checked={isChecked}
@@ -193,7 +193,7 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                   <AdminStudentViewModal
                     student={{
                       id: s.id,
@@ -227,7 +227,7 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
 
       {/* ── Floating Bulk Action Bar ─────────────────────────── */}
       {someSelected && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-2xl shadow-black/10 animate-in slide-in-from-bottom-4">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-wrap items-center justify-center gap-2 sm:gap-3 rounded-2xl border border-slate-200 bg-white px-3 sm:px-5 py-3 shadow-2xl shadow-black/10 animate-in slide-in-from-bottom-4 w-[calc(100%-2rem)] sm:w-max max-w-full">
           <span className="text-sm font-semibold text-slate-800">
             {selected.size} student{selected.size !== 1 ? "s" : ""} selected
           </span>
