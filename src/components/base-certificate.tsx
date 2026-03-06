@@ -4,14 +4,18 @@ import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import type { CertificateStudentData } from "@/hooks/useCertificateGenerator";
 
+import { CertificateLayoutConfig, defaultCertificateLayout } from "@/types/certificate";
+
 export type { CertificateStudentData as StudentCertificateData };
 
 interface BaseCertificateProps {
   data: CertificateStudentData;
+  layout?: CertificateLayoutConfig;
   passRef?: React.RefObject<HTMLDivElement>;
 }
 
-export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
+export function BaseCertificate({ data, layout, passRef }: BaseCertificateProps) {
+  const config = layout || defaultCertificateLayout;
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
 
   useEffect(() => {
@@ -73,14 +77,14 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
       <div
         style={{
           position: "absolute",
-          top: "830px",
-          left: "0",
+          top: config.name.top,
+          left: config.name.left || "0",
           width: "2200px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           textAlign: "center",
-          fontSize: "60px",
+          fontSize: config.name.fontSize,
           fontWeight: "bold",
           fontFamily: `"Monotype Corsiva", cursive, Georgia, serif`,
           textTransform: "capitalize",
@@ -96,9 +100,9 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
       <div
         style={{
           position: "absolute",
-          top: "1050px",
-          left: "1175px",
-          fontSize: "33px",
+          top: config.startDate.top,
+          left: config.startDate.left,
+          fontSize: config.startDate.fontSize,
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -113,9 +117,9 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
       <div
         style={{
           position: "absolute",
-          top: "1050px",
-          left: "1560px",
-          fontSize: "33px",
+          top: config.endDate.top,
+          left: config.endDate.left,
+          fontSize: config.endDate.fontSize,
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -130,9 +134,9 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
       <div
         style={{
           position: "absolute",
-          top: "1240px",
-          left: "680px",
-          fontSize: "35px",
+          top: config.givenDay.top,
+          left: config.givenDay.left,
+          fontSize: config.givenDay.fontSize,
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -149,9 +153,9 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
       <div
         style={{
           position: "absolute",
-          top: "1240px",
-          left: "1070px",
-          fontSize: "35px",
+          top: config.givenMonthYear.top,
+          left: config.givenMonthYear.left,
+          fontSize: config.givenMonthYear.fontSize,
           fontWeight: "bold",
           fontStyle: "italic",
           fontFamily: "Georgia, serif",
@@ -164,14 +168,34 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
         {givenMonthYear}
       </div>
 
+      {/* Hours */}
+      {(data.hours ?? 120) > 0 && (
+        <div
+          style={{
+            position: "absolute",
+            top: config.hours.top,
+            left: config.hours.left,
+            fontSize: config.hours.fontSize,
+            fontWeight: "bold",
+            fontStyle: "italic",
+            fontFamily: "Georgia, serif",
+            color: "#111111",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {data.hours ?? 120} Hours
+        </div>
+      )}
+
+
       {/* QR Code */}
       <div
         style={{
           position: "absolute",
-          bottom: "70px",
-          left: "70px",
-          width: "290px",
-          height: "290px",
+          bottom: config.qrCode.bottom,
+          left: config.qrCode.left,
+          width: config.qrCode.size,
+          height: config.qrCode.size,
           backgroundColor: "#ffffff",
           padding: "6px",
           borderRadius: "6px",
@@ -183,13 +207,13 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
           <img
             src={qrCodeDataUrl}
             alt="Verification QR Code"
-            style={{ width: "290px", height: "290px" }}
+            style={{ width: config.qrCode.size, height: config.qrCode.size }}
           />
         ) : (
           <div
             style={{
-              width: "290px",
-              height: "290px",
+              width: config.qrCode.size,
+              height: config.qrCode.size,
               backgroundColor: "#f1f5f9",
             }}
           />
@@ -200,11 +224,11 @@ export function BaseCertificate({ data, passRef }: BaseCertificateProps) {
       <div
         style={{
           position: "absolute",
-          bottom: "25px",
-          left: "65px",
-          width: "302px", // 290px + 12px padding
+          bottom: config.qrCode.textBottom,
+          left: config.qrCode.left, // Match QR code left
+          width: config.qrCode.size, // Match QR code width for text centering
           textAlign: "center",
-          fontSize: "22px",
+          fontSize: config.qrCode.textFontSize,
           fontWeight: "bold",
           fontFamily: "Arial, sans-serif",
           color: "#ffffffff",

@@ -10,6 +10,7 @@ export interface CertificateStudentData {
   lastName: string;
   dateEntered?: string;
   dateGraduated: string;
+  hours?: number;
   modulesCompleted: { title: string; count: number }[];
 }
 

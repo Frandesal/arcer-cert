@@ -18,7 +18,7 @@ export default async function AdminStudentsPage() {
   const supabase = await createClient();
   const { data: students } = await supabase
     .from("students")
-    .select("id, first_name, middle_name, last_name, date_entered, date_graduated, modules_completed")
+    .select("id, first_name, middle_name, last_name, date_entered, date_graduated, hours, modules_completed")
     .order("date_graduated", { ascending: false });
 
   const studentRows = (students ?? []).map((s) => ({
@@ -28,6 +28,7 @@ export default async function AdminStudentsPage() {
     last_name: s.last_name,
     date_entered: s.date_entered,
     date_graduated: s.date_graduated,
+    hours: s.hours,
     modules_completed: (s.modules_completed as { title: string; count: number }[]) ?? [],
   }));
 

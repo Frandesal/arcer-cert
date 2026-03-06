@@ -21,6 +21,7 @@ interface CsvRow {
   last_name: string;
   date_entered?: string;
   date_graduated?: string;
+  hours?: string;
   // Individual module count columns (the number for each module, or blank)
   ms_word?: string;
   ms_excel?: string;
@@ -48,9 +49,9 @@ export function CsvImportModal() {
 
   const handleDownloadTemplate = () => {
     // Generate simple CSV template
-    const header = "first_name,middle_name,last_name,date_entered,date_graduated,ms_word,ms_excel,ms_powerpoint,adobe_photoshop,canva";
-    const example1 = "John,D,Doe,2024-01-10,2024-05-20,12,8,10,5,15";
-    const example2 = "Jane,,Smith,2024-01-10,2024-05-20,20,15,18,,10";
+    const header = "first_name,middle_name,last_name,date_entered,date_graduated,hours,ms_word,ms_excel,ms_powerpoint,adobe_photoshop,canva";
+    const example1 = "John,D,Doe,2024-01-10,2024-05-20,120,12,8,10,5,15";
+    const example2 = "Jane,,Smith,2024-01-10,2024-05-20,100,20,15,18,,10";
     const csvContent = "data:text/csv;charset=utf-8," + [header, example1, example2].join("\n");
     const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csvContent));
@@ -88,15 +89,18 @@ export function CsvImportModal() {
   };
 
   const processCsvData = async (data: CsvRow[]) => {
-    if (data.length === 0) {
-      throw new Error("The CSV file is empty.");
+    // Filter out completely blank rows (phantom rows from Excel)
+    const validData = data.filter(row => row.first_name?.trim() || row.last_name?.trim());
+
+    if (validData.length === 0) {
+      throw new Error("The CSV file contains no valid student rows.");
     }
 
-    setProgressStatus(`Saving ${data.length} students to database...`);
+    setProgressStatus(`Saving ${validData.length} students to database...`);
     const supabase = createClient();
 
     // Map CSV rows to the database schema
-    const inserts = data.map((row) => {
+    const inserts = validData.map((row) => {
       const modules_completed = MODULE_COLUMNS
         .filter((m) => row[m.key] && row[m.key]!.trim() !== "")
         .map((m) => ({
@@ -110,6 +114,7 @@ export function CsvImportModal() {
         last_name: row.last_name?.trim() || "",
         date_entered: row.date_entered?.trim() || new Date().toISOString().split("T")[0],
         date_graduated: row.date_graduated?.trim() || new Date().toISOString().split("T")[0],
+        hours: parseInt(row.hours?.trim() || "120", 10),
         modules_completed,
       };
     });
@@ -181,6 +186,7 @@ export function CsvImportModal() {
                           <th className="text-left pr-3 pb-1 font-medium">first_name</th>
                           <th className="text-left pr-3 pb-1 font-medium">last_name</th>
                           <th className="text-left pr-3 pb-1 font-medium">date_graduated</th>
+                          <th className="text-left pr-3 pb-1 font-medium">hours</th>
                           <th className="text-left pr-3 pb-1 font-medium">ms_word</th>
                           <th className="text-left pr-3 pb-1 font-medium">ms_excel</th>
                           <th className="text-left pr-3 pb-1 font-medium">canva</th>
@@ -191,6 +197,7 @@ export function CsvImportModal() {
                           <td className="pr-3">John</td>
                           <td className="pr-3">Doe</td>
                           <td className="pr-3">2024-05-20</td>
+                          <td className="pr-3">120</td>
                           <td className="pr-3">12</td>
                           <td className="pr-3">8</td>
                           <td className="pr-3">15</td>

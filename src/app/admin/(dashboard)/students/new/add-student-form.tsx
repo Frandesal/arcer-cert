@@ -65,6 +65,7 @@ export function AddStudentForm() {
     
     const date_entered = formData.get("date_entered") as string;
     const date_graduated = formData.get("date_graduated") as string;
+    const hours = parseInt(formData.get("hours") as string, 10);
     
     // Filter out any empty modules
     const modules_completed = modules
@@ -83,6 +84,7 @@ export function AddStudentForm() {
         last_name,
         date_entered,
         date_graduated,
+        hours,
         modules_completed,
       })
       .select("id, first_name, last_name")
@@ -196,7 +198,7 @@ export function AddStudentForm() {
 
           <div className="space-y-4">
             <h3 className="font-medium text-slate-900">Program Details</h3>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="date_entered">Date entered *</Label>
                 <Input id="date_entered" name="date_entered" type="date" required />
@@ -204,6 +206,10 @@ export function AddStudentForm() {
               <div className="space-y-2">
                 <Label htmlFor="date_graduated">Date graduated *</Label>
                 <Input id="date_graduated" name="date_graduated" type="date" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="hours">Total Hours *</Label>
+                <Input id="hours" name="hours" type="number" required defaultValue="120" min="1" />
               </div>
             </div>
           </div>

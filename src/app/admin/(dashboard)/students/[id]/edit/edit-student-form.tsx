@@ -68,6 +68,7 @@ export function EditStudentForm({ student }: Props) {
     
     const date_entered = formData.get("date_entered") as string;
     const date_graduated = formData.get("date_graduated") as string;
+    const hours = parseInt(formData.get("hours") as string, 10);
     
     // Filter out any empty modules
     const modules_completed = modules
@@ -86,6 +87,7 @@ export function EditStudentForm({ student }: Props) {
         last_name,
         date_entered,
         date_graduated,
+        hours,
         modules_completed,
       })
       .eq("id", student.id);
@@ -160,7 +162,7 @@ export function EditStudentForm({ student }: Props) {
 
             <div className="space-y-4">
               <h3 className="font-medium text-slate-900">Program Details</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="date_entered">Date entered *</Label>
                   <Input
@@ -179,6 +181,17 @@ export function EditStudentForm({ student }: Props) {
                     type="date"
                     required
                     defaultValue={student.date_graduated}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="hours">Total Hours *</Label>
+                  <Input 
+                    id="hours" 
+                    name="hours" 
+                    type="number" 
+                    required 
+                    defaultValue={(student as any).hours ?? 120} 
+                    min="1" 
                   />
                 </div>
               </div>

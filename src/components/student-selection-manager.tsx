@@ -26,6 +26,7 @@ interface StudentRow {
   last_name: string;
   date_entered: string;
   date_graduated: string;
+  hours?: number;
   modules_completed: { title: string; count: number }[];
 }
 
@@ -55,12 +56,32 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
     });
   };
 
+  // Derive unique graduation years for the filter
+  const gradYears = Array.from(
+    new Set(students.map((s) => new Date(s.date_graduated).getFullYear().toString()))
+  ).sort((a, b) => b.localeCompare(a));
+
+  // Determine which students are visible based on filters
+  const filteredStudents = students.filter((s) => {
+    const d = new Date(s.date_graduated);
+    const matchesYear = filterYear === "all" || d.getFullYear().toString() === filterYear;
+    const matchesMonth =
+      filterMonth === "all" || (d.getMonth() + 1).toString().padStart(2, "0") === filterMonth;
+    return matchesYear && matchesMonth;
+  });
+
   const toggleAll = () => {
-    if (selected.size === students.length) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(students.map((s) => s.id)));
-    }
+    const allFilteredSelected = filteredStudents.length > 0 && filteredStudents.every(s => selected.has(s.id));
+    
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allFilteredSelected) {
+        filteredStudents.forEach(s => next.delete(s.id));
+      } else {
+        filteredStudents.forEach(s => next.add(s.id));
+      }
+      return next;
+    });
   };
 
   const clearSelection = () => setSelected(new Set());
@@ -75,6 +96,7 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
         lastName: s.last_name,
         dateEntered: s.date_entered,
         dateGraduated: s.date_graduated,
+        hours: s.hours ?? 120,
         modulesCompleted: s.modules_completed ?? [],
       }));
 
@@ -86,19 +108,7 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
     setSelected(new Set());
   };
 
-  // Derive unique graduation years for the filter
-  const gradYears = Array.from(
-    new Set(students.map((s) => new Date(s.date_graduated).getFullYear().toString()))
-  ).sort((a, b) => b.localeCompare(a));
-
-  // Determine which students are visible based on filters
-  const filteredStudents = students.filter((s) => {
-    const d = new Date(s.date_graduated);
-    const matchesYear = filterYear === "all" || d.getFullYear().toString() === filterYear;
-    const matchesMonth =
-      filterMonth === "all" || (d.getMonth() + 1).toString().padStart(2, "0") === filterMonth;
-    return matchesYear && matchesMonth;
-  });
+  // gradYears and filteredStudents derived above
 
   const allSelected = selected.size === filteredStudents.length && filteredStudents.length > 0;
   const someSelected = selected.size > 0;
