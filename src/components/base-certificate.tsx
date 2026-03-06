@@ -54,7 +54,15 @@ export function BaseCertificate({ data, layout, passRef }: BaseCertificateProps)
     year: "numeric",
   });
 
-  const givenDay = gradDate.getDate();
+  const getOrdinalSuffix = (i: number) => {
+    const j = i % 10, k = i % 100;
+    if (j === 1 && k !== 11) return i + "st";
+    if (j === 2 && k !== 12) return i + "nd";
+    if (j === 3 && k !== 13) return i + "rd";
+    return i + "th";
+  };
+
+  const givenDay = getOrdinalSuffix(gradDate.getDate());
   const givenMonthYear = gradDate.toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",

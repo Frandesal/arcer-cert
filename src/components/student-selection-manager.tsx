@@ -17,9 +17,10 @@ import { DeleteStudentDialog } from "@/components/delete-student-dialog";
 import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
 import { DownloadCertificateButton } from "@/components/download-certificate-button";
 import { useCertificateGenerator, type CertificateStudentData } from "@/hooks/useCertificateGenerator";
+import type { CertificateLayoutConfig } from "@/types/certificate";
 import { FileDown, Loader2, X } from "lucide-react";
 
-interface StudentRow {
+interface DatabaseStudentRow {
   id: string;
   first_name: string;
   middle_name?: string | null;
@@ -31,10 +32,14 @@ interface StudentRow {
 }
 
 interface StudentSelectionManagerProps {
-  students: StudentRow[];
+  students: DatabaseStudentRow[];
+  layoutConfig: CertificateLayoutConfig;
 }
 
-export function StudentSelectionManager({ students }: StudentSelectionManagerProps) {
+export function StudentSelectionManager({
+  students,
+  layoutConfig,
+}: StudentSelectionManagerProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [filterYear, setFilterYear] = useState<string>("all");
   const [filterMonth, setFilterMonth] = useState<string>("all");
@@ -219,6 +224,7 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
                     }}
                   />
                   <DownloadCertificateButton
+                    layoutConfig={layoutConfig}
                     student={{
                       id: s.id,
                       firstName: s.first_name,
@@ -281,7 +287,7 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
         }}
       >
         {renderingStudent && (
-          <BaseCertificate data={renderingStudent} passRef={certificateRef} />
+          <BaseCertificate data={renderingStudent} layout={layoutConfig} passRef={certificateRef} />
         )}
       </div>
     </>

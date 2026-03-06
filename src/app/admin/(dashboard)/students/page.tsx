@@ -8,6 +8,7 @@ import { Users, Plus } from "lucide-react";
 
 import { CsvImportModal } from "@/components/csv-import-modal";
 import { StudentSelectionManager } from "@/components/student-selection-manager";
+import { defaultCertificateLayout } from "@/types/certificate";
 
 export default async function AdminStudentsPage() {
   const admin = await isAdmin();
@@ -20,6 +21,14 @@ export default async function AdminStudentsPage() {
     .from("students")
     .select("id, first_name, middle_name, last_name, date_entered, date_graduated, hours, modules_completed")
     .order("date_graduated", { ascending: false });
+
+  const { data: layoutSettings } = await supabase
+    .from("certificate_settings")
+    .select("layout_config")
+    .eq("id", 1)
+    .single();
+
+  const layoutConfig = layoutSettings?.layout_config || defaultCertificateLayout;
 
   const studentRows = (students ?? []).map((s) => ({
     id: s.id,
@@ -92,7 +101,7 @@ export default async function AdminStudentsPage() {
               </div>
 
               {studentRows.length > 0 ? (
-                <StudentSelectionManager students={studentRows} />
+                <StudentSelectionManager students={studentRows} layoutConfig={layoutConfig} />
               ) : (
                 <Card className="border-slate-200/80 bg-white shadow-card">
                   <CardContent className="py-12 text-center text-slate-600">

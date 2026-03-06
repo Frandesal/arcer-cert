@@ -6,11 +6,14 @@ import { BaseCertificate } from "./base-certificate";
 import { useCertificateGenerator } from "@/hooks/useCertificateGenerator";
 import type { CertificateStudentData } from "@/hooks/useCertificateGenerator";
 
+import type { CertificateLayoutConfig } from "@/types/certificate";
+
 interface DownloadCertificateButtonProps {
   student: CertificateStudentData;
+  layoutConfig: CertificateLayoutConfig;
 }
 
-export function DownloadCertificateButton({ student }: DownloadCertificateButtonProps) {
+export function DownloadCertificateButton({ student, layoutConfig }: DownloadCertificateButtonProps) {
   const {
     isGenerating,
     generatingStatus,
@@ -48,7 +51,7 @@ export function DownloadCertificateButton({ student }: DownloadCertificateButton
         }}
       >
         {renderingStudent && (
-          <BaseCertificate data={renderingStudent} passRef={certificateRef} />
+          <BaseCertificate data={renderingStudent} layout={layoutConfig} passRef={certificateRef} />
         )}
       </div>
     </>
