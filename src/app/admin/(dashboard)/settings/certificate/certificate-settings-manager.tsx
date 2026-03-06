@@ -52,7 +52,8 @@ export function CertificateSettingsManager({ initialLayout }: { initialLayout: C
       const supabase = createClient();
       const { error } = await supabase
         .from("certificate_settings")
-        .upsert({ id: 1, layout_config: layout });
+        .update({ layout_config: layout })
+        .eq("id", 1);
 
       if (error) throw error;
       
@@ -206,10 +207,14 @@ export function CertificateSettingsManager({ initialLayout }: { initialLayout: C
         </div>
 
         {/* Right Side: Live Certificate Preview Canvas */}
-        <div className="flex-1 rounded-2xl border-2 border-slate-200 bg-slate-100 flex items-center justify-center overflow-auto shadow-inner relative min-h-[500px] lg:min-h-0">
-          {/* We scale the 2200x1700 certificate down so it fits visually on the screen */}
-          <div className="relative transform origin-center scale-[0.25] sm:scale-[0.35] lg:scale-[0.4] xl:scale-[0.45] shadow-2xl transition-transform">
-             <BaseCertificate data={previewStudent} layout={layout} />
+        <div className="flex-1 rounded-2xl border-2 border-slate-200 bg-slate-100 flex items-center justify-center overflow-auto shadow-inner relative min-h-[500px] lg:min-h-[600px]">
+          {/* Responsive physical wrapper to prevent sides from being clipped while scaling */}
+          <div className="relative w-full h-full flex items-center justify-center p-4">
+            <div className="relative flex-shrink-0 shadow-2xl transition-all w-[550px] h-[425px] sm:w-[770px] sm:h-[595px] lg:w-[880px] lg:h-[680px] xl:w-[990px] xl:h-[765px]">
+              <div className="absolute top-0 left-0 origin-top-left transform scale-[0.25] sm:scale-[0.35] lg:scale-[0.4] xl:scale-[0.45]">
+                 <BaseCertificate data={previewStudent} layout={layout} />
+              </div>
+            </div>
           </div>
           
           <div className="absolute top-4 right-4 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-slate-200/50 flex items-center gap-2 pointer-events-none">
