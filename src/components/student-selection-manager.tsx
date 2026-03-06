@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -38,6 +38,11 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [filterYear, setFilterYear] = useState<string>("all");
   const [filterMonth, setFilterMonth] = useState<string>("all");
+
+  // Clear selections whenever the filter changes so we don't accidentally keep hidden students selected
+  useEffect(() => {
+    setSelected(new Set());
+  }, [filterYear, filterMonth]);
 
   const {
     isGenerating,
@@ -110,7 +115,7 @@ export function StudentSelectionManager({ students }: StudentSelectionManagerPro
 
   // gradYears and filteredStudents derived above
 
-  const allSelected = selected.size === filteredStudents.length && filteredStudents.length > 0;
+  const allSelected = filteredStudents.length > 0 && filteredStudents.every(s => selected.has(s.id));
   const someSelected = selected.size > 0;
 
   return (
