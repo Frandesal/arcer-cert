@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap, LayoutDashboard, Users, Megaphone, Plus, Search } from "lucide-react";
+import { GraduationCap, LayoutDashboard, Users, Megaphone, Plus, Search, Settings } from "lucide-react";
 import { AdminLogout } from "@/app/admin/admin-logout";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/students", label: "Graduates Directory", icon: Users, exact: false },
   { href: "/admin/bulletin", label: "Bulletin Board", icon: Megaphone, exact: false },
+  { href: "/admin/settings/certificate", label: "Cert Settings", icon: Settings, exact: false },
 ];
 
 export function AdminSidebar() {

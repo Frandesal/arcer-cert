@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Plus, Menu, X, Megaphone } from "lucide-react";
+import { GraduationCap, Plus, Menu, X, Megaphone, Settings } from "lucide-react";
 import { AdminLogout } from "@/app/admin/admin-logout";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -32,6 +32,11 @@ export function AdminHeader() {
           <Link href="/admin/bulletin">
             <Button variant="ghost" className="font-medium text-slate-700 gap-1.5">
               <Megaphone className="h-4 w-4" /> Bulletin
+            </Button>
+          </Link>
+          <Link href="/admin/settings/certificate">
+            <Button variant="ghost" className="font-medium text-slate-700 gap-1.5">
+              <Settings className="h-4 w-4" /> Cert Settings
             </Button>
           </Link>
           <Link href="/admin/students/new">
@@ -71,6 +76,12 @@ export function AdminHeader() {
                 <Button variant="ghost" className="w-full justify-start gap-2">
                   <Megaphone className="h-4 w-4" />
                   Bulletin
+                </Button>
+              </Link>
+              <Link href="/admin/settings/certificate" onClick={() => setMobileOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start gap-2">
+                  <Settings className="h-4 w-4" />
+                  Cert Settings
                 </Button>
               </Link>
               <Link href="/admin/students/new" onClick={() => setMobileOpen(false)}>
