@@ -215,13 +215,13 @@ export function BaseCertificate({ data, layout, passRef }: BaseCertificateProps)
           <img
             src={qrCodeDataUrl}
             alt="Verification QR Code"
-            style={{ width: config.qrCode.size, height: config.qrCode.size }}
+            style={{ width: "100%", height: "100%" }}
           />
         ) : (
           <div
             style={{
-              width: config.qrCode.size,
-              height: config.qrCode.size,
+              width: "100%",
+              height: "100%",
               backgroundColor: "#f1f5f9",
             }}
           />
