@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { QRCodeDisplay } from "@/components/qr-code-display";
 import { Calendar, BookOpen, CheckCircle2 } from "lucide-react";
+import { parseLocalDate } from "@/lib/utils";
 
 type StudentData = {
   id: string;
@@ -26,7 +27,7 @@ export function AdminStudentViewModal({ student }: Props) {
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "N/A";
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    return parseLocalDate(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",

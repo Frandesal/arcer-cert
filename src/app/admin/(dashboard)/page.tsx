@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Megaphone, Presentation, CalendarDays } from "lucide-react";
+import { Users, FileText, ArrowRight, Building2, CalendarDays, ExternalLink, Activity, Trophy, Megaphone, Presentation } from "lucide-react";
+import { parseLocalDate } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -81,7 +82,7 @@ export default async function AdminMetricsDashboard() {
                      <div className="bg-primary/10 p-2 rounded-md"><Users className="h-4 w-4 text-primary" /></div>
                      <span className="text-sm font-medium text-slate-900">New Graduate Registered</span>
                    </div>
-                   <span className="text-xs text-slate-500 flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5"/> {new Date(s.date_graduated).toLocaleDateString()}</span>
+                   <span className="text-xs text-slate-500 flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5"/> {parseLocalDate(s.date_graduated).toLocaleDateString()}</span>
                 </div>
               ))}
               {(!students || students.length === 0) && (

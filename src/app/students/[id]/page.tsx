@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Calendar, BookOpen, Award, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { parseLocalDate } from "@/lib/utils";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { QRCodeDisplay } from "@/components/qr-code-display";
@@ -27,8 +28,9 @@ export default async function StudentProfilePage({ params }: Props) {
   const baseUrl = process.env.NEXT_PUBLIC_VERIFY_BASE_URL || "";
   const verifyUrl = `${baseUrl}/verify/${student.id}`;
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "N/A";
+    return parseLocalDate(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",

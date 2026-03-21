@@ -18,6 +18,7 @@ import { AdminStudentViewModal } from "@/components/admin-student-view-modal";
 import { DownloadCertificateButton } from "@/components/download-certificate-button";
 import { useCertificateGenerator, type CertificateStudentData } from "@/hooks/useCertificateGenerator";
 import type { CertificateLayoutConfig } from "@/types/certificate";
+import { parseLocalDate } from "@/lib/utils";
 import { FileDown, Loader2, X } from "lucide-react";
 
 interface DatabaseStudentRow {
@@ -67,13 +68,13 @@ export function StudentSelectionManager({
   };
 
   // Derive unique graduation years for the filter
-  const gradYears = Array.from(
-    new Set(students.map((s) => new Date(s.date_graduated).getFullYear().toString()))
-  ).sort((a, b) => b.localeCompare(a));
+  const availableYears = Array.from(
+    new Set(students.map((s) => parseLocalDate(s.date_graduated).getFullYear().toString()))
+  ).sort((a, b) => Number(b) - Number(a));
 
   // Determine which students are visible based on filters
   const filteredStudents = students.filter((s) => {
-    const d = new Date(s.date_graduated);
+    const d = parseLocalDate(s.date_graduated);
     const matchesYear = filterYear === "all" || d.getFullYear().toString() === filterYear;
     const matchesMonth =
       filterMonth === "all" || (d.getMonth() + 1).toString().padStart(2, "0") === filterMonth;
@@ -150,7 +151,7 @@ export function StudentSelectionManager({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Years</SelectItem>
-              {gradYears.map((y) => (
+              {availableYears.map((y) => (
                 <SelectItem key={y} value={y}>
                   {y}
                 </SelectItem>
@@ -209,7 +210,7 @@ export function StudentSelectionManager({
                     </p>
                     <p className="text-sm text-slate-600">
                       Graduated:{" "}
-                      {new Date(s.date_graduated).toLocaleDateString()}
+                      {parseLocalDate(s.date_graduated).toLocaleDateString()}
                     </p>
                   </div>
                 </div>

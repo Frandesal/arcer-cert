@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { parseLocalDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 type StudentRow = {
@@ -40,7 +41,7 @@ export function StudentsSearch({
 
   // Derive unique years from the dataset for the dropdown
   const uniqueYears = useMemo(() => {
-    const years = initialStudents.map((s) => new Date(s.date_graduated).getFullYear().toString());
+    const years = initialStudents.map((s) => parseLocalDate(s.date_graduated).getFullYear().toString());
     return Array.from(new Set(years)).sort((a, b) => Number(b) - Number(a));
   }, [initialStudents]);
 
@@ -93,12 +94,12 @@ export function StudentsSearch({
 
     // Filter by Year
     if (yearState !== "all") {
-      result = result.filter((s) => new Date(s.date_graduated).getFullYear().toString() === yearState);
+      result = result.filter((s) => parseLocalDate(s.date_graduated).getFullYear().toString() === yearState);
     }
 
     // Filter by Month
     if (monthState !== "all") {
-      result = result.filter((s) => new Date(s.date_graduated).getMonth().toString() === monthState);
+      result = result.filter((s) => parseLocalDate(s.date_graduated).getMonth().toString() === monthState);
     }
 
     // Filter by Search Query
@@ -107,7 +108,7 @@ export function StudentsSearch({
       result = result.filter(
         (s) =>
           s.full_name.toLowerCase().includes(q) ||
-          new Date(s.date_graduated).toLocaleDateString().includes(q),
+          parseLocalDate(s.date_graduated).toLocaleDateString().includes(q),
       );
     }
     
@@ -214,7 +215,7 @@ export function StudentsSearch({
                       <p className="mt-1 text-sm font-medium text-slate-500">
                         Graduated:{" "}
                         <span className="text-slate-600">
-                          {new Date(student.date_graduated).toLocaleDateString(
+                          {parseLocalDate(student.date_graduated).toLocaleDateString(
                             "en-US",
                             {
                               year: "numeric",

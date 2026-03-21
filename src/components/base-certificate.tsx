@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
-import type { CertificateStudentData } from "@/hooks/useCertificateGenerator";
+import type { StudentCertificateData as CertificateStudentData } from "@/hooks/useCertificateGenerator";
+import type { CertificateLayoutConfig } from "@/types/certificate";
+import { parseLocalDate } from "@/lib/utils";
 
-import { CertificateLayoutConfig, defaultCertificateLayout } from "@/types/certificate";
+import { defaultCertificateLayout } from "@/types/certificate";
 
 export type { CertificateStudentData as StudentCertificateData };
 
@@ -40,8 +42,8 @@ export function BaseCertificate({ data, layout, passRef }: BaseCertificateProps)
     .join(" ")
     .toUpperCase();
 
-  const gradDate = new Date(data.dateGraduated);
-  const startDate = new Date(data.dateEntered ?? data.dateGraduated);
+  const gradDate = parseLocalDate(data.dateGraduated);
+  const startDate = parseLocalDate(data.dateEntered ?? data.dateGraduated);
 
   const formattedStart = startDate.toLocaleDateString("en-US", {
     month: "long",
