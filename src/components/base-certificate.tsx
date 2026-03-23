@@ -78,11 +78,25 @@ export function BaseCertificate({ data, layout, passRef }: BaseCertificateProps)
         height: "1700px",
         position: "relative",
         backgroundColor: "#ffffff",
-        backgroundImage: `url('/certificate-bg.jpg')`,
-        backgroundSize: "100% 100%",
         overflow: "hidden",
       }}
     >
+      {/* Background Image (Rendered as img for cross-origin CORS support) */}
+      <img
+        src={config.backgroundUrl || '/certificate-bg.jpg'}
+        alt="Certificate Background"
+        crossOrigin="anonymous"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 0,
+          objectFit: 'cover'
+        }}
+      />
+
       {/* Student Name */}
       <div
         style={{
@@ -154,6 +168,7 @@ export function BaseCertificate({ data, layout, passRef }: BaseCertificateProps)
           whiteSpace: "nowrap",
           textAlign: "center",
           minWidth: "100px",
+          zIndex: 10,
         }}
       >
         {givenDay}

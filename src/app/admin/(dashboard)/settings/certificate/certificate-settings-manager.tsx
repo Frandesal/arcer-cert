@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save, RefreshCcw, Loader2, Check } from "lucide-react";
+import { Save, RefreshCcw, Loader2, Check, Image as ImageIcon, UploadCloud } from "lucide-react";
 
 const previewStudent: CertificateStudentData = {
   id: "preview-12345",
@@ -31,12 +31,17 @@ export function CertificateSettingsManager({ initialLayout }: { initialLayout: C
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleUpdate = (section: keyof CertificateLayoutConfig, field: string, value: string) => {
+  const handleUpdate = (
+    section: keyof Omit<CertificateLayoutConfig, "backgroundUrl">,
+    field: string,
+    value: string
+  ) => {
     setLayout((prev) => ({
       ...prev,
       [section]: {
-        ...prev[section],
+        ...(prev[section] as any),
         [field]: value
       }
     }));
@@ -67,7 +72,39 @@ export function CertificateSettingsManager({ initialLayout }: { initialLayout: C
     }
   };
 
-  const renderTextOverlayControls = (title: string, section: keyof CertificateLayoutConfig) => {
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setErrorMessage("");
+    setSaveStatus("idle");
+
+    try {
+      const supabase = createClient();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `bg-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('certificate_assets')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('certificate_assets')
+        .getPublicUrl(fileName);
+
+      setLayout(prev => ({ ...prev, backgroundUrl: publicUrl }));
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to upload image");
+      setSaveStatus("error");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const renderTextOverlayControls = (title: string, section: keyof Omit<CertificateLayoutConfig, "backgroundUrl">) => {
     const config = layout[section] as any;
     return (
       <Card className="shadow-sm border-slate-200/80">
@@ -127,9 +164,10 @@ export function CertificateSettingsManager({ initialLayout }: { initialLayout: C
 
           <div className="flex-1 overflow-y-auto pr-2 space-y-6 stylish-scrollbar pb-10">
             <Tabs defaultValue="text" className="w-full">
-              <TabsList className="w-full grid grid-cols-2 mb-4">
-                <TabsTrigger value="text">Text Elements</TabsTrigger>
-                <TabsTrigger value="qr">QR Code</TabsTrigger>
+              <TabsList className="w-full grid border-b border-transparent mb-4" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                <TabsTrigger value="text" className="text-xs">Text</TabsTrigger>
+                <TabsTrigger value="qr" className="text-xs">QR Code</TabsTrigger>
+                <TabsTrigger value="bg" className="text-xs">Background</TabsTrigger>
               </TabsList>
               
               <TabsContent value="text" className="space-y-4 mt-0">
@@ -187,6 +225,43 @@ export function CertificateSettingsManager({ initialLayout }: { initialLayout: C
                          />
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="bg" className="mt-0 space-y-4">
+                <Card className="shadow-sm border-slate-200/80">
+                  <CardContent className="p-4 space-y-4">
+                    <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-emerald-600" /> Upload Custom Background
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Upload a high-resolution image to serve as the certificate background. Dimensions should ideally match standard A4 or Letter sizes in landscape (e.g., 2200x1700 pixels).
+                    </p>
+                    
+                    <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors relative isolate">
+                       <Input 
+                         type="file" 
+                         accept="image/*"
+                         onChange={handleBackgroundUpload}
+                         disabled={isUploading}
+                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                       />
+                       <UploadCloud className="w-8 h-8 text-slate-400 mb-2" />
+                       <div className="text-sm font-medium text-slate-700">
+                         {isUploading ? "Uploading..." : "Click or drag image to upload"}
+                       </div>
+                       <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>
+                    </div>
+
+                    {layout.backgroundUrl && (
+                      <div className="mt-4 p-3 bg-emerald-50 rounded-lg border border-emerald-100 flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        <span className="text-xs font-medium text-emerald-800 break-all truncate">
+                          Custom background applied
+                        </span>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

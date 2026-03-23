@@ -22,6 +22,7 @@ export interface CertificateLayoutConfig {
   givenMonthYear: TextOverlayConfig;
   hours: TextOverlayConfig;
   qrCode: QRCodeConfig;
+  backgroundUrl?: string;
 }
 
 export const defaultCertificateLayout: CertificateLayoutConfig = {
